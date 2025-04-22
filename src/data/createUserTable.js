@@ -20,7 +20,9 @@ const createUserTable = async () => {
         email VARCHAR(100) UNIQUE NOT NULL,
         role user_role NOT NULL,
         profile_pic VARCHAR(500),
-        created_at TIMESTAMP DEFAULT NOW()
+        verified BOOLEAN DEFAULT FALSE,
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP
       );
     `;
   

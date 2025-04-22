@@ -1,6 +1,6 @@
 import Joi from "joi";
 
-const userScheme = Joi.object({
+const userSignUpScheme = Joi.object({
   first_name: Joi.string().min(3).required(),
   last_name:Joi.string(),
   username:Joi.string().required(),
@@ -10,9 +10,25 @@ const userScheme = Joi.object({
   email: Joi.string().email().required(),
   profile_pic:Joi.string()
 });
+const userCreateScheme = Joi.object({
+  first_name: Joi.string().min(3).required(),
+  last_name:Joi.string(),
+  username:Joi.string().required(),
+  password:Joi.string().required(),
+  role:Joi.string().required(),
+  email: Joi.string().email().required(),
+  profile_pic:Joi.string()
+});
 
-const validateUser = (req, res, next) => {
-  const { error } = userScheme.validate(req.body);
+const userUpdateScheme = Joi.object({
+  first_name: Joi.string().min(3).required(),
+  last_name:Joi.string(),
+  username:Joi.string().required(),
+  profile_pic:Joi.string()
+});
+
+export const validateSignUpUser = (req, res, next) => {
+  const { error } = userSignUpScheme.validate(req.body);
   if (error)
     return res.status(400).json({
       status: 400,
@@ -21,4 +37,23 @@ const validateUser = (req, res, next) => {
   next();
 };
 
-export default validateUser;
+export const validateCreateUser = (req, res, next) => {
+  const { error } = userCreateScheme.validate(req.body);
+  if (error)
+    return res.status(400).json({
+      status: 400,
+      message: error.details[0].message,
+    });
+  next();
+};
+
+export const validateUpdateUser = (req, res, next) => {
+  const { error } = userUpdateScheme.validate(req.body);
+  if (error)
+    return res.status(400).json({
+      status: 400,
+      message: error.details[0].message,
+    });
+  next();
+};
+

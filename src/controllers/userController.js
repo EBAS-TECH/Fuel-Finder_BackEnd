@@ -4,6 +4,7 @@ import {
     deleteUserService,
     getAllUsersService,
     getUserByIdService,
+    getUserByUsernameService,
     updateUserService,
   } from "../models/userModel.js";
   import { validate as isUUID } from "uuid";
@@ -20,7 +21,15 @@ import {
   };
   
   export const createUser = async (req, res, next) => {
-    const { name, email } = req.body;
+    const { first_name, last_name, username, password,email, role, profile_pic } = req.body;
+
+    const user = await getUserByUsernameService(username);
+    if (user) {
+        return res.status(400).json({ error: "Username already exists" });
+    }
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+    const defaultProfilePic = profile_pic || `https://avatar.iran.liara.run/public/boy?username=${username}`;
     try {
       const newUser = await createUserService(
         first_name,
@@ -62,9 +71,20 @@ import {
   };
   
   export const updateUserById = async (req, res, next) => {
-    const { name, email } = req.body;
+    if (!isUUID(req.params.id)) {
+      return res.status(400).json({ error: "Invalid token payload: userId is not a valid UUID" });
+    }
+    
+    const { first_name,last_name, username,profile_pic } = req.body;
+
+    const user = await getUserByUsernameService(username);
+    if (user) {
+        return res.status(400).json({ error: "Username already exists" });
+    }
     try {
-      const updatedUser = await updateUserService(req.params.id, name, email);
+      const defaultProfilePic = profile_pic || `https://avatar.iran.liara.run/public/boy?username=${username}`;
+    
+      const updatedUser = await updateUserService(req.params.id, first_name, last_name,username,defaultProfilePic);
       if (!updatedUser) return handleResponse(res, 404, "User not found");
       handleResponse(res, 200, "User updated successfully", updatedUser);
     } catch (err) {

@@ -1,6 +1,9 @@
-import  { createUserService, getUserByEmailService, getUserByUsernameService } from "../models/userModel.js";
+import { sendVerificationEmail, sendWelcomeEmail } from "../utils/emailNotification/emails.js";
+import { createEmailVerificationService, getEmailVerificationByIdService, updateEmailVerificationByUserIdService } from "../models/emailVerificationModel.js";
+import  { createUserService, getUserByEmailService, getUserByIdService, getUserByUsernameService, verifyUserByIdService } from "../models/userModel.js";
 import generateTokenAndsetCookie from "../utils/generateTokens.js";
 import bcrypt from "bcryptjs";
+import { validate as isUUID } from "uuid";
 
 // Standardized response function
 const handleResponse = (res, status, message, data = null) => {
@@ -32,7 +35,7 @@ const handleResponse = (res, status, message, data = null) => {
         const hashedPassword = await bcrypt.hash(password, salt);
 
         const defaultProfilePic = profile_pic || `https://avatar.iran.liara.run/public/boy?username=${username}`;
-
+        const verificationToken = Math.floor(100000+Math.random()*900000).toString();
         try {
             const newUser = await createUserService(
                 first_name,
@@ -43,8 +46,18 @@ const handleResponse = (res, status, message, data = null) => {
                 role,
                 defaultProfilePic
             );
+            const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
+            const newEmailVerification = await createEmailVerificationService(
+                newUser.id,
+                verificationToken,
+                {
+                    verification_expires_at: expiresAt,
+                }
+            );
+            
 
             generateTokenAndsetCookie(newUser.id, res);
+            await sendVerificationEmail(newUser.email,verificationToken);
             const { password, ...userWithoutPassword } = newUser;
             handleResponse(res, 201, "User created successfully", userWithoutPassword);
 
@@ -94,6 +107,44 @@ export const logout = (req, res) => {
         res.status(500).json({ error: error.message })  
     }
 }
+
+export const emailVerify = async (req, res) => {
+    if (!isUUID(req.params.id)) {
+        return res.status(400).json({ error: "Invalid token payload: userId is not a valid UUID" });
+      }
+    try {
+        const user_id = req.params.id
+        const token = req.body.token
+        const user = await getUserByIdService(req.params.id);
+        if (!user) return handleResponse(res, 404, "User not found By thid Id");
+
+        const emailVerification = await getEmailVerificationByIdService(user_id);
+        if (!emailVerification) return handleResponse(res, 404, "Email Verification not found");
+
+        if (emailVerification?.verified) {
+            return res.status(400).json({ message: "Email is already verified." });
+        }
+        
+        if (emailVerification?.verification_expires_at > new Date()) {
+            if(emailVerification?.token == token){
+            await verifyUserByIdService(user_id);
+            const emailVerification = await updateEmailVerificationByUserIdService(user_id);
+            generateTokenAndsetCookie(user_id, res);
+            await sendWelcomeEmail(user?.email,user?.name);
+            return handleResponse(res, 404, "Email verified successfully",emailVerification);}{
+                return res.status(400).json({ message: "Verification token not correct." });
+            }
+        } else {
+            return res.status(400).json({ message: "Verification token has expired." });
+        }
+
+
+    } catch (error) {
+        console.error("Error in email verify controller:", error.message);
+        res.status(500).json({ error: error.message });
+    }
+};
+
 
 
   

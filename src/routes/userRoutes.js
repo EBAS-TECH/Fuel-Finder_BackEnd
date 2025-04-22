@@ -1,7 +1,7 @@
 import express from "express";
 
 import { changePassword, createUser, deleteUserById, getAllUsers, getUserById, updateUserById } from '../controllers/userController.js';
-import validateUser from "../middlewares/inputValidator.js";
+import { validateCreateUser, validateUpdateUser } from "../middlewares/inputValidator.js";
 import protectRoute from "../middlewares/protectRoute.js";
 
 
@@ -15,10 +15,10 @@ router.get('/',protectRoute,getAllUsers);
 router.get('/:id',protectRoute,getUserById);
 
 // Create a new user
-router.post('/',validateUser,protectRoute,createUser);
+router.post('/',validateCreateUser,protectRoute,createUser);
 
 // Update a user by ID
-router.put('/:id',validateUser,protectRoute,updateUserById);
+router.put('/:id',validateUpdateUser,protectRoute,updateUserById);
 
 // Delete a user by ID
 router.delete('/:id',protectRoute,deleteUserById);

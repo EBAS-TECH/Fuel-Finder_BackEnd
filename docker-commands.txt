@@ -5,7 +5,7 @@ docker --version
 docker pull postgres 
 
 /* Run postgres in docker container */
-docker run --name postgres-db -e POSTGRES_PASSWORD= -p 5432:5432 -d postgres
+docker run --name postgres-db -e POSTGRES_PASSWORD=admin -p 5432:5432 -d postgres
 
 --name postgres-db: The name of the container.
 -e POSTGRES_PASSWORD=mysecretpassword: Set the PostgreSQL password (replace mysecretpassword with your own).

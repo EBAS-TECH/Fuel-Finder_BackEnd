@@ -7,6 +7,7 @@ import userRoutes from "./routes/userRoutes.js";
 import authRoutes from "./routes/authRoutes.js"
 import errorHandling from "./middlewares/errorHandler.js";
 import createUserTable from "./data/createUserTable.js";
+import createEmailVerificationTable from "./data/Emailverification.js";
 
 dotenv.config();
 
@@ -35,6 +36,7 @@ app.use(errorHandling)
 // create tables
 
 createUserTable();
+createEmailVerificationTable();
 
 // server running 
 app.listen(port,()=>{
