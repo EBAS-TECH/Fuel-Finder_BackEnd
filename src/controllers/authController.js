@@ -16,11 +16,7 @@ const handleResponse = (res, status, message, data = null) => {
 
   export const signup = async (req, res, next) => {
     try {
-        const { first_name, last_name, username, password, confirmPassword, email, role, profile_pic } = req.body;
-
-        if (password !== confirmPassword) {
-            return res.status(400).json({ error: "Passwords don't match" });
-        }
+        const { first_name, last_name, username, password, email, role, profile_pic } = req.body;
 
         const user = await getUserByUsernameService(username);
         if (user) {
@@ -131,7 +127,7 @@ export const emailVerify = async (req, res) => {
             const emailVerification = await updateEmailVerificationByUserIdService(user_id);
             generateTokenAndsetCookie(user_id, res);
             await sendWelcomeEmail(user?.email,user?.name);
-            return handleResponse(res, 404, "Email verified successfully",emailVerification);}{
+            return handleResponse(res,200, "Email verified successfully",emailVerification);}{
                 return res.status(400).json({ message: "Verification token not correct." });
             }
         } else {
