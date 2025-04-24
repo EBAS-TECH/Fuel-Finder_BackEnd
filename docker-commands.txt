@@ -7,6 +7,8 @@ docker pull postgres
 /* Run postgres in docker container */
 docker run --name postgres-db -e POSTGRES_PASSWORD=admin -p 5432:5432 -d postgres
 
+docker run --name fuel-finder-db -e POSTGRES_PASSWORD=admin  -e POSTGRES_USER=postgres  -e POSTGRES_DB=fuel_finder -p 5432:5432  -d postgis/postgis
+
 --name postgres-db: The name of the container.
 -e POSTGRES_PASSWORD=mysecretpassword: Set the PostgreSQL password (replace mysecretpassword with your own).
 -p 5432:5432: Map the PostgreSQL port 5432 from the container to your local machine.

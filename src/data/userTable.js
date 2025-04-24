@@ -36,4 +36,4 @@ const createUserTable = async () => {
   };
   
 
-export default createUserTable;
+  export default createUserTable;

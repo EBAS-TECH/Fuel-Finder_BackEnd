@@ -19,4 +19,5 @@ const createEmailVerificationTable = async () => {
       }
     }
 
-    export default createEmailVerificationTable;
+export default createEmailVerificationTable;
+

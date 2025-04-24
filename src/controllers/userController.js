@@ -40,7 +40,8 @@ import {
         role,
         defaultProfilePic
     );
-      handleResponse(res, 201, "User created successfully", newUser);
+    const { password, ...userWithoutPassword } = newUser;
+      handleResponse(res, 201, "User created successfully", userWithoutPassword);
     } catch (err) {
       next(err);
     }
@@ -105,7 +106,7 @@ import {
   export const changePassword = async (req, res) => {
     try {
       const  userId  = req.user.id; 
-      const { oldPassword, newPassword, confirmPassword } = req.body;
+      const { oldPassword, newPassword } = req.body;
 
       const user = await getUserByIdService(userId);
       if (!user) return handleResponse(res, 404, "User not found");
@@ -115,9 +116,6 @@ import {
         throw new Error("Old password is incorrect");
         }
   
-      if (newPassword !== confirmPassword) {
-        return res.status(400).json({ error: "New passwords do not match" });
-      }
        // Hash the new password
       const salt = await bcrypt.genSalt(10);
       const hashedPassword = await bcrypt.hash(newPassword, salt);

@@ -1,9 +1,10 @@
 import { sendVerificationEmail, sendWelcomeEmail } from "../utils/emailNotification/emails.js";
 import { createEmailVerificationService, getEmailVerificationByIdService, updateEmailVerificationByUserIdService } from "../models/emailVerificationModel.js";
-import  { createUserService, getUserByEmailService, getUserByIdService, getUserByUsernameService, verifyUserByIdService } from "../models/userModel.js";
+import  { createUserService, deleteUserService, getUserByEmailService, getUserByIdService, getUserByUsernameService, verifyUserByIdService } from "../models/userModel.js";
 import generateTokenAndsetCookie from "../utils/generateTokens.js";
 import bcrypt from "bcryptjs";
 import { validate as isUUID } from "uuid";
+import { deleteUserById } from "./userController.js";
 
 // Standardized response function
 const handleResponse = (res, status, message, data = null) => {
@@ -19,13 +20,19 @@ const handleResponse = (res, status, message, data = null) => {
         const { first_name, last_name, username, password, email, role, profile_pic } = req.body;
 
         const user = await getUserByUsernameService(username);
-        if (user) {
+        if (user && user?.verified) {
             return res.status(400).json({ error: "Username already exists" });
         }
-        const user1 = await getUserByEmailService(email);
-        if (user1) {
-            return res.status(400).json({ error: "email already exists" });
+        else{
+            await deleteUserService(user?.id);
         }
+        const user1 = await getUserByEmailService(email);
+        if (user1 && user1?.verified) {
+            return res.status(400).json({ error: "email already exists" });
+        }else{
+            await deleteUserService(user1?.id);
+        }
+
 
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
@@ -77,7 +84,7 @@ export const login = async (req, res) => {
         // Check if user exists and password is correct
         const isPasswordCorrect = await bcrypt.compare(req.body.password, user?.password || "");
 
-        if (!user || !isPasswordCorrect) {
+        if (!user || !isPasswordCorrect || !user?.verified) {
             return res.status(400).json({ error: "Username or password not correct" });
         }
 
@@ -126,7 +133,7 @@ export const emailVerify = async (req, res) => {
             await verifyUserByIdService(user_id);
             const emailVerification = await updateEmailVerificationByUserIdService(user_id);
             generateTokenAndsetCookie(user_id, res);
-            await sendWelcomeEmail(user?.email,user?.name);
+            await sendWelcomeEmail(user?.email,user?.username);
             return handleResponse(res,200, "Email verified successfully",emailVerification);}{
                 return res.status(400).json({ message: "Verification token not correct." });
             }

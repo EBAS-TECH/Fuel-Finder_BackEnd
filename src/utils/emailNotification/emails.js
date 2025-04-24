@@ -2,6 +2,7 @@ import {
 	PASSWORD_RESET_REQUEST_TEMPLATE,
 	PASSWORD_RESET_SUCCESS_TEMPLATE,
 	VERIFICATION_EMAIL_TEMPLATE,
+	WELCOME_EMAIL_TEMPLATE,
 } from "./emailTemplates.js";
 import transporter, { sender } from "./nodemailer.js";
 
@@ -11,7 +12,7 @@ export const sendVerificationEmail = async (email, verificationToken) => {
   
 	try {
 	  const info = await transporter.sendMail({
-		from: `"${sender.name}" <${sender.email}>`,
+		from: `"${sender.name}"`,
 		to: email,
 		subject: "Verify your email",
 		html: htmlContent,
@@ -25,26 +26,23 @@ export const sendVerificationEmail = async (email, verificationToken) => {
   };
 
   export const sendWelcomeEmail = async (email, name) => {
-	const htmlContent = `
-		<h1>Welcome to Fuel finder Company</h1>
-		<p>Hi ${name},</p>
-		<p>We're excited to have you on board. Let us know if you need anything!</p>
-	`;
-
+	// Replace the {username} placeholder in the template
+	const htmlContent = WELCOME_EMAIL_TEMPLATE.replace('{username}', name);
+  
 	try {
-		const info = await transporter.sendMail({
-			from: `"${sender.name}" <${sender.email}>`,
-			to: email,
-			subject: "Welcome to Fuel finder Company!",
-			html: htmlContent,
-		});
-
-		console.log("Welcome email sent:", info.messageId);
+	  const info = await transporter.sendMail({
+		from: `"${sender.name}"`,
+		to: email,
+		subject: "Welcome to Fuel Finder!",
+		html: htmlContent,
+	  });
+  
+	  console.log("Welcome email sent:", info.messageId);
 	} catch (error) {
-		console.error("Failed to send welcome email:", error);
-		throw new Error("Could not send welcome email");
+	  console.error("Failed to send welcome email:", error);
+	  throw new Error("Could not send welcome email");
 	}
-};
+  };
 
 
 export const sendPasswordResetEmail = async (email, resetURL) => {

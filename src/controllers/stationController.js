@@ -1,0 +1,206 @@
+import { createStationService, 
+    deleteStationByIdService, 
+    getAllStationsService, 
+    getNearbyStationsService, 
+    getStationByIdService, 
+    updateStationByIdService, 
+    verifyStationByIdService } from "../models/stationModel.js";
+import { createUserService, getUserByUsernameService } from "../models/userModel.js";
+import { validate as isUUID } from "uuid";
+import bcrypt from "bcryptjs";
+
+
+// Standardized response function
+const handleResponse = (res, status, message, data = null) => {
+    res.status(status).json({
+      status,
+      message,
+      data,
+    });
+  };
+
+
+  export const createStation = async (req, res, next) => {
+    const { first_name, last_name, username, password, email, role, profile_pic } = req.body.user;
+    const { en_name, am_name,tin_number, latitude, longitude, address } = req.body;
+  
+    // Check if the username already exists
+    const user = await getUserByUsernameService(username);
+    if (user) {
+      return res.status(400).json({ error: "Username already exists" });
+    }
+  
+    // Hash the password and create the default profile picture
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+    const defaultProfilePic = profile_pic || `https://avatar.iran.liara.run/public/boy?username=${username}`;
+  
+    try {
+      // Create the user
+      const newUser = await createUserService(
+        first_name,
+        last_name,
+        username,
+        hashedPassword,
+        email,
+        role,
+        defaultProfilePic
+      );
+  
+      // After creating the user, create the station and associate the user with the station
+      const newStation = await createStationService(
+        en_name,
+        am_name,
+        tin_number,
+        newUser.id,  // Now `newUser.id` is used as user reference
+        latitude,
+        longitude,
+        address
+      );
+      const { password, ...userWithoutPassword } = newUser;
+      newStation.user = userWithoutPassword;
+      // Return a successful response with the created station
+      handleResponse(res, 201, "User and Station created successfully", newStation);
+    } catch (err) {
+      next(err);
+    }
+  };
+  
+  export const getAllStations = async (req, res, next) => {
+    try {
+      const stations = await getAllStationsService();
+      
+      if (stations.length === 0) {
+        return handleResponse(res, 200, "No stations found", stations);
+      }
+      handleResponse(res, 200, "Stations retrieved successfully", stations);
+   
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  export const getStationById = async (req, res, next) => {
+    if (!isUUID(req.params.id)) {
+        return res.status(400).json({ error: "Invalid token payload: userId is not a valid UUID" });
+      }
+    const { id } = req.params;
+  
+    try {
+      const station = await getStationByIdService(id);
+  
+      if (!station) {
+        return handleResponse(res, 404, "Station not found", null);
+      }
+  
+      handleResponse(res, 200, "Station retrieved successfully", station);
+    } catch (err) {
+      next(err);
+    }
+  };
+  
+  export const deleteStationById = async (req, res, next) => {
+    if (!isUUID(req.params.id)) {
+        return res.status(400).json({ error: "Invalid token payload: userId is not a valid UUID" });
+      }
+    const { id } = req.params;
+  
+    try {
+      const deletedStation = await deleteStationByIdService(id);
+  
+      if (!deletedStation) {
+        return handleResponse(res, 404, "Station not found", null);
+      }
+  
+      handleResponse(res, 200, "Station deleted successfully", deletedStation);
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  export const verifyStationById = async (req, res, next) => {
+    if (!isUUID(req.params.id)) {
+        return res.status(400).json({ error: "Invalid token payload: userId is not a valid UUID" });
+      }
+    const { id } = req.params;
+  
+    try {
+      const verifiedStation = await verifyStationByIdService(id);
+  
+      if (!verifiedStation) {
+        return handleResponse(res, 404, "Station not found", null);
+      }
+  
+      handleResponse(res, 200, "Station verified successfully", verifiedStation);
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  export const updateStationById = async (req, res, next) => {
+    if (!isUUID(req.params.id)) {
+        return res.status(400).json({ error: "Invalid token payload: userId is not a valid UUID" });
+      }
+    const { id } = req.params;
+    const { en_name, am_name, address } = req.body;
+  
+    try {
+      const updatedStation = await updateStationByIdService(id, en_name, am_name, address);
+  
+      if (!updatedStation) {
+        return handleResponse(res, 404, "Station not found", null);
+      }
+  
+      handleResponse(res, 200, "Station updated successfully", updatedStation);
+    } catch (err) {
+      next(err);
+    }
+  };
+  
+  export const changeAvailabilityStationById = async (req, res, next) => {
+    if (!isUUID(req.params.id)) {
+        return res.status(400).json({ error: "Invalid token payload: userId is not a valid UUID" });
+      }
+    const { id } = req.params;
+    const { availability } = req.body;
+  
+    try {
+      const updatedStation = await changeAvailabilityStationByIdService(id, availability);
+  
+      if (!updatedStation) {
+        return handleResponse(res, 404, "Station not found", null);
+      }
+  
+      handleResponse(res, 200, "Station availability updated successfully", updatedStation);
+    } catch (err) {
+      next(err);
+    }
+  };
+  
+
+  export const getNearByStationsService = async (req, res, next) => {
+    try {
+      const { latitude, longitude, radius = 10000, limit = 3 } = req.body;
+
+      // Ensure latitude and longitude are valid numbers
+    if (isNaN(latitude) || isNaN(longitude)) {
+        return res.status(400).json({ message: "Invalid latitude or longitude values" });
+      }
+  
+      // Call the service to get nearby stations
+      const stations = await getNearbyStationsService(latitude, longitude, radius, limit);
+  
+      // Check if any stations were found
+      if (stations.length === 0) {
+        return handleResponse(res, 200, "No nearby stations found", stations); 
+      }
+  
+      // Return the list of nearby stations with distance
+      return handleResponse(res, 200, "Nearby stations retrieved successfully", stations); 
+    } catch (err) {
+      // Catch any errors and pass them to the error handler
+      next(err);
+    }
+  };
+  
+  

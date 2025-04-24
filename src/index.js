@@ -5,9 +5,9 @@ import pool from "./config/db.js";
 import cookieParser from "cookie-parser";
 import userRoutes from "./routes/userRoutes.js";
 import authRoutes from "./routes/authRoutes.js"
+import stationRoutes from "./routes/stationRoutes.js"
 import errorHandling from "./middlewares/errorHandler.js";
-import createUserTable from "./data/createUserTable.js";
-import createEmailVerificationTable from "./data/Emailverification.js";
+import setupDatabase  from "./data/setupDatabase.js";
 
 dotenv.config();
 
@@ -29,14 +29,12 @@ app.use(cors())
 
 app.use("/api/user",userRoutes)
 app.use("/api/auth",authRoutes)
+app.use("/api/station",stationRoutes)
 
 // Error handling middleware
 app.use(errorHandling)
 
-// create tables
-
-createUserTable();
-createEmailVerificationTable();
+setupDatabase();
 
 // server running 
 app.listen(port,()=>{
