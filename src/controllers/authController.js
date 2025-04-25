@@ -1,9 +1,9 @@
 import { sendVerificationEmail, sendWelcomeEmail } from "../utils/emailNotification/emails.js";
 import { createEmailVerificationService, getEmailVerificationByIdService, updateEmailVerificationByUserIdService } from "../models/emailVerificationModel.js";
 import  { createUserService, deleteUserService, getUserByEmailService, getUserByIdService, getUserByUsernameService, verifyUserByIdService } from "../models/userModel.js";
-import generateTokenAndsetCookie from "../utils/generateTokens.js";
 import bcrypt from "bcryptjs";
 import { validate as isUUID } from "uuid";
+import generateToken from "../utils/generateTokens.js";
 
 
 // Standardized response function
@@ -89,11 +89,17 @@ export const login = async (req, res) => {
         }
 
         // Set JWT cookie
-        generateTokenAndsetCookie(user.id, res);
+        const token = generateToken(user.id);
 
         // Respond with user data (update field names based on your table)
         const { password, ...userWithoutPassword } = user;
-        handleResponse(res, 200, "User login successfully", userWithoutPassword);
+        res.status(200).json({
+            message: "Login successful",
+            user: {
+              ...userWithoutPassword
+            },
+            token,
+          });
 
     } catch (error) {
         console.error("Error in login controller:", error.message);
@@ -112,41 +118,55 @@ export const logout = (req, res) => {
 }
 
 export const emailVerify = async (req, res) => {
+    // Validate that the userId in the URL is a valid UUID
     if (!isUUID(req.params.id)) {
-        return res.status(400).json({ error: "Invalid token payload: userId is not a valid UUID" });
-      }
-    try {
-        const user_id = req.params.id
-        const token = req.body.token
-        const user = await getUserByIdService(req.params.id);
-        if (!user) return handleResponse(res, 404, "User not found By thid Id");
-
-        const emailVerification = await getEmailVerificationByIdService(user_id);
-        if (!emailVerification) return handleResponse(res, 404, "Email Verification not found");
-
-        if (emailVerification?.verified) {
-            return res.status(400).json({ message: "Email is already verified." });
-        }
-        
-        if (emailVerification?.verification_expires_at > new Date()) {
-            if(emailVerification?.token == token){
-            await verifyUserByIdService(user_id);
-            const emailVerification = await updateEmailVerificationByUserIdService(user_id);
-            generateTokenAndsetCookie(user_id, res);
-            await sendWelcomeEmail(user?.email,user?.username);
-            return handleResponse(res,200, "Email verified successfully",emailVerification);}{
-                return res.status(400).json({ message: "Verification token not correct." });
-            }
-        } else {
-            return res.status(400).json({ message: "Verification token has expired." });
-        }
-
-
-    } catch (error) {
-        console.error("Error in email verify controller:", error.message);
-        res.status(500).json({ error: error.message });
+      return res.status(400).json({ error: "Invalid token payload: userId is not a valid UUID" });
     }
-};
+  
+    try {
+      const user_id = req.params.id;
+      const token = req.body.token; // Token sent in the request body
+      const user = await getUserByIdService(user_id); // Retrieve user from DB
+  
+      if (!user) {
+        return res.status(404).json({ error: "User not found by this ID" });
+      }
+  
+      const emailVerification = await getEmailVerificationByIdService(user_id); // Retrieve email verification status
+      if (!emailVerification) {
+        return res.status(404).json({ error: "Email Verification not found" });
+      }
+  
+      if (emailVerification?.verified) {
+        return res.status(400).json({ message: "Email is already verified." });
+      }
+  
+      // Check if verification token is still valid
+      if (new Date(emailVerification?.verification_expires_at) > new Date()) {
+        if (emailVerification?.token === token) { 
+          await verifyUserByIdService(user_id); 
+          const updatedEmailVerification = await updateEmailVerificationByUserIdService(user_id); // Update verification status in DB
+          const newToken = generateToken(user_id); // Generate a new JWT token
+          // Send welcome email after successful verification
+          await sendWelcomeEmail(user?.email, user?.username);
+  
+          return res.status(200).json({
+            message: "Email verified successfully",
+            emailVerification: updatedEmailVerification,
+            token: newToken,
+          });
+        } else {
+          return res.status(400).json({ message: "Verification token not correct." });
+        }
+      } else {
+        return res.status(400).json({ message: "Verification token has expired." });
+      }
+  
+    } catch (error) {
+      console.error("Error in email verify controller:", error.message);
+      res.status(500).json({ error: error.message });
+    }
+  };
 
 
 

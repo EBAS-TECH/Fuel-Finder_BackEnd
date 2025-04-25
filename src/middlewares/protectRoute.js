@@ -1,52 +1,49 @@
 import jwt from "jsonwebtoken";
-import { getUserByIdService } from "../models/userModel.js";
 import { getStationByUserIdService } from "../models/stationModel.js";
+import { getUserByIdService } from "../models/userModel.js";
 
-// ✅ Local helper function
+// 👇 Local helper method
 const validateStationStatus = (station) => {
   if (!station) {
-    return { valid: false, message: "Station not found for the user" };
+    return { valid: false, message: "Station not found with user" };
   }
 
-  const statusErrors = {
-    "PENDING": "Station is in pending state",
-    "NOT-VERIFIED": "Station is not verified"
-  };
+  if (station.status === "PENDING") {
+    return { valid: false, message: "Station is in pending state" };
+  }
 
-  if (statusErrors[station.status]) {
-    return { valid: false, message: statusErrors[station.status] };
+  if (station.status === "NOT-VERIFIED") {
+    return { valid: false, message: "Station is not verified" };
   }
 
   return { valid: true };
 };
 
-// ✅ Middleware
+
 const protectRoute = async (req, res, next) => {
   try {
-    const token = req.cookies.jwt;
+    const token = req.cookies.jwt || req.headers.authorization?.split(" ")[1];
+    console.log("token",token)
 
     if (!token) {
-      return res.status(401).json({ error: "Unauthorized - NO token provided" });
+      return res.status(401).json({ error: "Unauthorized - No token provided" });
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    console.log("decoded",decoded)
 
-    if (!decoded) {
-      return res.status(401).json({ error: "Unauthorized - Invalid token" });
-    }
-
-    const { password, ...userWithoutPassword } = await getUserByIdService(decoded.userId);
+    const {password,userWithoutPassword} = await getUserByIdService(decoded.userId);
 
     if (!userWithoutPassword) {
       return res.status(404).json({ error: "User not found" });
     }
 
-    if (userWithoutPassword.role === 'GAS_STATION') {
+    if (userWithoutPassword.role === "GAS_STATION") {
       const station = await getStationByUserIdService(userWithoutPassword.id);
       const validation = validateStationStatus(station);
 
       if (!validation.valid) {
-        return res.status(404).json({ error: validation.message });
+        return res.status(403).json({ error: validation.message });
       }
     }
 
@@ -54,8 +51,8 @@ const protectRoute = async (req, res, next) => {
     next();
 
   } catch (error) {
-    console.log("error in protectRoute middleware", error.message);
-    res.status(500).json({ error: error.message });
+    console.log("Error in protectRoute middleware:", error.message);
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 
