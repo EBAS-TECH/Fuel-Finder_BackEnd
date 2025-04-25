@@ -10,6 +10,8 @@ import { createUserService, deleteUserService, getUserByUsernameService } from "
 import { validate as isUUID } from "uuid";
 import bcrypt from "bcryptjs";
 import axios from 'axios';
+import { sendVerificationEmail } from "../utils/emailNotification/emails.js";
+import { createEmailVerificationService } from "../models/emailVerificationModel.js";
 
 
 // Standardized response function
@@ -36,7 +38,7 @@ const handleResponse = (res, status, message, data = null) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
     const defaultProfilePic = profile_pic || `https://avatar.iran.liara.run/public/boy?username=${username}`;
-  
+    const verificationToken = Math.floor(100000+Math.random()*900000).toString();
     try {
       // Create the user
       const newUser = await createUserService(
@@ -59,6 +61,15 @@ const handleResponse = (res, status, message, data = null) => {
         longitude,
         address
       );
+      const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
+      await createEmailVerificationService(
+                      newUser.id,
+                      verificationToken,
+                      {
+                          verification_expires_at: expiresAt,
+                      }
+                  );
+      await sendVerificationEmail(newUser.email,verificationToken)
       const { password, ...userWithoutPassword } = newUser;
       newStation.user = userWithoutPassword;
       // Return a successful response with the created station
@@ -121,6 +132,7 @@ export const getAllStationsByStatus = async (req, res, next) => {
       next(err);
     }
   };
+
   
   export const deleteStationById = async (req, res, next) => {
     if (!isUUID(req.params.id)) {

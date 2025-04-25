@@ -5,7 +5,7 @@ const createUserTable = async () => {
       DO $$ 
       BEGIN
           IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'user_role') THEN
-              CREATE TYPE user_role AS ENUM ('DRIVER', 'GAS_STATION', 'ADMIN');
+              CREATE TYPE user_role AS ENUM ('DRIVER', 'GAS_STATION', 'ADMIN','MINISTRY_DELEGATE');
           END IF;
       END$$;
     `;

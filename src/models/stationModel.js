@@ -56,6 +56,20 @@ export const getStationByIdService = async (id) => {
     return result.rows[0]; // returns undefined if not found
   };
 
+  export const getStationByUserIdService = async (user_id) => {
+    const query = `
+      SELECT 
+        id,en_name,am_name,tin_number,user_id,address,availability,status,created_at,updated_at,
+        ST_Y(location::geometry) AS latitude,
+        ST_X(location::geometry) AS longitude
+      FROM stations
+      WHERE user_id = $1
+    `;
+  
+    const result = await pool.query(query, [user_id]);
+    return result.rows[0]; // returns undefined if not found
+  };
+
 export const deleteStationByIdService = async (id) => {
     const query = `
       DELETE FROM stations 
