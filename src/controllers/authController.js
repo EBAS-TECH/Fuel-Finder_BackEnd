@@ -59,7 +59,7 @@ const handleResponse = (res, status, message, data = null) => {
             );
             
 
-            generateTokenAndsetCookie(newUser.id, res);
+            // generateTokenAndsetCookie(newUser.id, res);
             await sendVerificationEmail(newUser.email,verificationToken);
             const { password, ...userWithoutPassword } = newUser;
             handleResponse(res, 201, "User created successfully", userWithoutPassword);

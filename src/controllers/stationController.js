@@ -1,11 +1,12 @@
 import { createStationService, 
     deleteStationByIdService, 
+    getAllStationsByStatusService, 
     getAllStationsService, 
     getNearbyStationsService, 
     getStationByIdService, 
     updateStationByIdService, 
     verifyStationByIdService } from "../models/stationModel.js";
-import { createUserService, getUserByUsernameService } from "../models/userModel.js";
+import { createUserService, deleteUserService, getUserByUsernameService } from "../models/userModel.js";
 import { validate as isUUID } from "uuid";
 import bcrypt from "bcryptjs";
 
@@ -79,6 +80,27 @@ const handleResponse = (res, status, message, data = null) => {
       next(err);
     }
   };
+export const getAllStationsByStatus = async (req, res, next) => {
+    const  status  = req.params.status;  
+    try {
+      const stations = await getAllStationsByStatusService(status);
+      
+      // Ensure stations is an array before checking its length
+      if (!Array.isArray(stations)) {
+        throw new Error('Invalid response format from getAllStationsByStatus');
+      }
+
+      if (stations.length === 0) {
+        return handleResponse(res, 200, `No ${status} stations found`, stations);
+      }
+
+      handleResponse(res, 200, `${status} Stations retrieved successfully`, stations);
+   
+    } catch (err) {
+      next(err); 
+    }
+};
+
 
   export const getStationById = async (req, res, next) => {
     if (!isUUID(req.params.id)) {
@@ -111,8 +133,12 @@ const handleResponse = (res, status, message, data = null) => {
       if (!deletedStation) {
         return handleResponse(res, 404, "Station not found", null);
       }
+      const deletedUser = await deleteUserService(deletedStation.user_id)
+      if (!deletedUser) {
+        return handleResponse(res, 404, "user not found when station is deleted", null);
+      }
   
-      handleResponse(res, 200, "Station deleted successfully", deletedStation);
+      handleResponse(res, 200, "Station and station user deleted successfully", deletedStation);
     } catch (err) {
       next(err);
     }
@@ -123,9 +149,10 @@ const handleResponse = (res, status, message, data = null) => {
         return res.status(400).json({ error: "Invalid token payload: userId is not a valid UUID" });
       }
     const { id } = req.params;
+    const status = req.body.status;
   
     try {
-      const verifiedStation = await verifyStationByIdService(id);
+      const verifiedStation = await verifyStationByIdService(id,status);
   
       if (!verifiedStation) {
         return handleResponse(res, 404, "Station not found", null);

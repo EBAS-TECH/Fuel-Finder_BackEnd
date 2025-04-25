@@ -1,9 +1,22 @@
 import express from "express";
-import { createStation, getNearByStationsService } from "../controllers/stationController.js";
+import { createStation,
+     deleteStationById,
+     getAllStations, 
+     getAllStationsByStatus, 
+     getNearByStationsService, 
+     getStationById, 
+     verifyStationById } from "../controllers/stationController.js";
+import protectRoute from "../middlewares/protectRoute.js";
+import authorizeRoles from "../middlewares/authorizeRole.js";
 const router = express.Router();
 
 router.post('/',createStation);
-router.post('/near-station',getNearByStationsService)
+router.get('/',protectRoute,getAllStations)
+router.get('/status/:status',protectRoute,getAllStationsByStatus)
+router.get('/:id',protectRoute,getStationById)
+router.delete('/:id',protectRoute,authorizeRoles('ADMIN'),deleteStationById)
+router.put('/verify-station/:id',protectRoute,authorizeRoles('ADMIN'),verifyStationById)
+router.post('/near-station',protectRoute,getNearByStationsService)
 
 
 export default router;
