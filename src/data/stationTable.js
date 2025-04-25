@@ -15,7 +15,7 @@ const createStationTable = async () => {
       en_name VARCHAR(100) NOT NULL,
       am_name VARCHAR(100),
       tin_number VARCHAR(10) NOT NULL,
-      user_id UUID REFERENCES users(id),  -- This creates the foreign key reference to the users table
+      user_id UUID UNIQUE NOT NULL  REFERENCES users(id),  -- This creates the foreign key reference to the users table
       location GEOMETRY(Point, 4326),
       address VARCHAR(255),
       availability BOOLEAN DEFAULT FALSE,
