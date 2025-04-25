@@ -9,6 +9,7 @@ import { createStationService,
 import { createUserService, deleteUserService, getUserByUsernameService } from "../models/userModel.js";
 import { validate as isUUID } from "uuid";
 import bcrypt from "bcryptjs";
+import axios from 'axios';
 
 
 // Standardized response function
@@ -231,3 +232,34 @@ export const getAllStationsByStatus = async (req, res, next) => {
   };
   
   
+export const validateTin = async (req, res) => {
+  const etradeHost = 'https://etrade.gov.et';
+  const { tinNumber } = req.params;
+  const externalApiUrl = `${etradeHost}/api/Registration/GetRegistrationInfoByTin/${tinNumber}/am`;
+
+  try {
+    const response = await axios.get(externalApiUrl, {
+      headers: {
+        Referer: etradeHost,
+        Origin: etradeHost,
+      },
+    });
+
+    return res.status(response.status).json(response.data);
+
+  } catch (error) {
+    if (error.response) {
+      return res
+        .status(error.response.status)
+        .json({ message: error.response.data || error.message });
+    } else if (error.request) {
+      return res
+        .status(500)
+        .json({ message: 'No response from ETrade server' });
+    } else {
+      return res
+        .status(500)
+        .json({ message: error.message });
+    }
+  }
+};

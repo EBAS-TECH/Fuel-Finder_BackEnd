@@ -4,7 +4,7 @@ import  { createUserService, deleteUserService, getUserByEmailService, getUserBy
 import generateTokenAndsetCookie from "../utils/generateTokens.js";
 import bcrypt from "bcryptjs";
 import { validate as isUUID } from "uuid";
-import { deleteUserById } from "./userController.js";
+
 
 // Standardized response function
 const handleResponse = (res, status, message, data = null) => {
@@ -147,6 +147,7 @@ export const emailVerify = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+
 
 
 
