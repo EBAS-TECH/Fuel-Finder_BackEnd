@@ -64,7 +64,8 @@ import {
     try {
       const user = await getUserByIdService(req.params.id);
       if (!user) return handleResponse(res, 404, "User not found");
-      handleResponse(res, 200, "User fetched successfully", user);
+      const {password,...userWithoutPassword} = user;
+      handleResponse(res, 200, "User fetched successfully", userWithoutPassword);
     } catch (err) {
       console.error("Error fetching user by ID:", err.message);
       handleResponse(res,500, "An error occurred while fetching the user.");
