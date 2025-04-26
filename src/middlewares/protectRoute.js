@@ -23,16 +23,16 @@ const validateStationStatus = (station) => {
 const protectRoute = async (req, res, next) => {
   try {
     const token = req.cookies.jwt || req.headers.authorization?.split(" ")[1];
-    console.log("token",token)
 
     if (!token) {
       return res.status(401).json({ error: "Unauthorized - No token provided" });
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    console.log("decoded",decoded)
+    
 
-    const {password,userWithoutPassword} = await getUserByIdService(decoded.userId);
+    const {password,...userWithoutPassword} = await getUserByIdService(decoded.userId);
+  
 
     if (!userWithoutPassword) {
       return res.status(404).json({ error: "User not found" });
