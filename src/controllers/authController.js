@@ -1,9 +1,10 @@
 import { sendVerificationEmail, sendWelcomeEmail } from "../utils/emailNotification/emails.js";
-import { createEmailVerificationService, getEmailVerificationByIdService, updateEmailVerificationByUserIdService } from "../models/emailVerificationModel.js";
+import { createEmailVerificationService, getEmailVerificationByIdService, resendEmailVerificationByUserIdService, updateEmailVerificationByUserIdService } from "../models/emailVerificationModel.js";
 import  { createUserService, deleteUserService, getUserByEmailService, getUserByIdService, getUserByUsernameService, verifyUserByIdService } from "../models/userModel.js";
 import bcrypt from "bcryptjs";
 import { validate as isUUID } from "uuid";
 import generateToken from "../utils/generateTokens.js";
+import { getUserById } from "./userController.js";
 
 
 // Standardized response function
@@ -146,14 +147,12 @@ export const emailVerify = async (req, res) => {
         if (emailVerification?.token === token) { 
           await verifyUserByIdService(user_id); 
           const updatedEmailVerification = await updateEmailVerificationByUserIdService(user_id); // Update verification status in DB
-          const newToken = generateToken(user_id); // Generate a new JWT token
           // Send welcome email after successful verification
           await sendWelcomeEmail(user?.email, user?.username);
   
           return res.status(200).json({
             message: "Email verified successfully",
             emailVerification: updatedEmailVerification,
-            token: newToken,
           });
         } else {
           return res.status(400).json({ message: "Verification token not correct." });
@@ -169,6 +168,32 @@ export const emailVerify = async (req, res) => {
   };
 
 
-
-
+export const resendEmailVerification = async (req, res) => {
+    try {
+      const  user_id  = req.params.id;        // assume user_id comes from URL params
+      
+      const verificationToken = Math.floor(100000+Math.random()*900000).toString();
+      const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
   
+      const updatedVerification = await resendEmailVerificationByUserIdService(
+        user_id,
+        verificationToken,
+        { verification_expires_at:expiresAt }
+      );
+      
+      const user = await getUserByIdService(user_id);
+      
+      if (!updatedVerification || !user) {
+        return res.status(404).json({ message: 'User not found or no verification record found' });
+      }
+      await sendVerificationEmail(user.email,verificationToken);
+      res.status(200).json({
+        message: 'resend Email verification data ',
+        data: updatedVerification,
+      });
+      
+    } catch (error) {
+      console.error('Error resending email verification:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  };

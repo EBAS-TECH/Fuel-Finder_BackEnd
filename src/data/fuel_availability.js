@@ -17,7 +17,8 @@ const createFuelAvailabilityTable = async () => {
     fuel_type fuel_type NOT NULL, 
     up_time TIMESTAMP DEFAULT NOW(),
     down_time TIMESTAMP,
-    availability_duration INTERVAL
+    availability_duration INTERVAL,
+    available BOOLEAN DEFAULT TRUE
   );
 `;
 

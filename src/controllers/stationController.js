@@ -1,4 +1,4 @@
-import { createStationService, 
+import { changeAvailabilityStationByIdService, createStationService, 
     deleteStationByIdService, 
     getAllStationsByStatusService, 
     getAllStationsService, 

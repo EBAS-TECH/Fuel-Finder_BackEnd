@@ -6,6 +6,7 @@ import cookieParser from "cookie-parser";
 import userRoutes from "./routes/userRoutes.js";
 import authRoutes from "./routes/authRoutes.js"
 import stationRoutes from "./routes/stationRoutes.js"
+import fuelAvailabilityRoutes from "./routes/fuelAvailabilityRoute.js"
 import errorHandling from "./middlewares/errorHandler.js";
 import setupDatabase  from "./data/setupDatabase.js";
 
@@ -30,6 +31,7 @@ app.use(cors())
 app.use("/api/user",userRoutes)
 app.use("/api/auth",authRoutes)
 app.use("/api/station",stationRoutes)
+app.use("/api/availability",fuelAvailabilityRoutes)
 
 // Error handling middleware
 app.use(errorHandling)

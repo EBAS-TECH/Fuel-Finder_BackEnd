@@ -9,9 +9,10 @@ import { createStation,
      verifyStationById } from "../controllers/stationController.js";
 import protectRoute from "../middlewares/protectRoute.js";
 import authorizeRoles from "../middlewares/authorizeRole.js";
+import { validateCreateStation } from "../middlewares/stationInputValidation.js";
 const router = express.Router();
 
-router.post('/',createStation);
+router.post('/',validateCreateStation,createStation);
 router.get('/',protectRoute,authorizeRoles('ADMIN','MINISTRY_DELEGATE','DRIVER'),getAllStations)
 router.get('/status/:status',protectRoute,authorizeRoles('ADMIN','MINISTRY_DELEGATE','DRIVER'),getAllStationsByStatus)
 router.get('/:id',protectRoute,getStationById)

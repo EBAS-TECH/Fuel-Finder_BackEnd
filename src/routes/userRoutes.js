@@ -1,7 +1,7 @@
 import express from "express";
 
 import { changePassword, createUser, deleteUserById, getAllUsers, getUserById, updateUserById } from '../controllers/userController.js';
-import { validateCreateUser, validateUpdateUser } from "../middlewares/inputValidator.js";
+import { validateCreateUser, validateUpdateUser } from "../middlewares/userInputValidator.js";
 import protectRoute from "../middlewares/protectRoute.js";
 
 

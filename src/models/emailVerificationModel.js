@@ -29,3 +29,15 @@ export const createEmailVerificationService = async (user_id,token,{ verificatio
     );
     return result.rows[0];
   };
+  export const resendEmailVerificationByUserIdService = async (user_id, token, { verification_expires_at }) => {
+    const result = await pool.query(
+      `UPDATE email_verifications 
+       SET token = $1, verification_expires_at = $2 
+       WHERE user_id = $3 
+       RETURNING *`,
+      [token, verification_expires_at, user_id]
+    );
+    
+    return result.rows[0];
+  };
+  

@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  api:
+    container_name: api
+    restart: always
+    build: .
+    image: fuel-finder  
+    ports:
+      - "${PORT}:${PORT}"
+    depends_on:
+      - db
+    volumes:
+      - .:/app
+      - /app/node_modules
+
+  db:
+    container_name: fuel_finder-db
+    image: postgis/postgis
+    ports:
+      - "5432:${DBPORT}"
+    volumes:
+      - data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=${USER}
+      - POSTGRES_PASSWORD=${PASSWORD}
+      - POSTGRES_DB=${DATABASE}
+
+  pgadmin:
+    container_name: pgadmin4
+    image: dpage/pgadmin4
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@email.com
+      PGADMIN_DEFAULT_PASSWORD: ${PASSWORD}
+    ports:
+      - "5050:80"
+
+volumes:
+  data: {}
