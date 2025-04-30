@@ -275,7 +275,6 @@ export const validateTin = async (req, res) => {
         Origin: etradeHost,
       },
     });
- console.log(response.data.AssociateShortInfos[0].ManagerName.split(" "))
     return res.status(response.status).json({
       first_name:response.data.AssociateShortInfos[0].ManagerName.split(" ")[0],
       last_name:response.data.AssociateShortInfos[0].ManagerName.split(" ")[1]});
