@@ -25,7 +25,7 @@ const handleResponse = (res, status, message, data = null) => {
       
         const fuelAvailabilityOld = await getLastFuelAvailabilityByStationAndFuelTypeService(station_id,fuel_type,);
     
-        if (fuelAvailabilityOld.available) {
+        if (fuelAvailabilityOld?.available) {
           return handleResponse(res, 404, "there is available fuel can no start fuel", null);
         }
       const fuelAvailability = await createFuelAvailabilityService(

@@ -4,6 +4,7 @@ import { changeAvailabilityStationByIdService, createStationService,
     getAllStationsService, 
     getNearbyStationsService, 
     getStationByIdService, 
+    getStationByUserIdService, 
     updateStationByIdService, 
     verifyStationByIdService } from "../models/stationModel.js";
 import { createUserService, deleteUserService, getUserByUsernameService } from "../models/userModel.js";
@@ -122,6 +123,24 @@ export const getAllStationsByStatus = async (req, res, next) => {
   
     try {
       const station = await getStationByIdService(id);
+  
+      if (!station) {
+        return handleResponse(res, 404, "Station not found", null);
+      }
+  
+      handleResponse(res, 200, "Station retrieved successfully", station);
+    } catch (err) {
+      next(err);
+    }
+  };
+  export const getStationByUserId = async (req, res, next) => {
+    if (!isUUID(req.params.user_id)) {
+        return res.status(400).json({ error: "Invalid token payload: userId is not a valid UUID" });
+      }
+    const { user_id } = req.params;
+  
+    try {
+      const station = await getStationByUserIdService(user_id);
   
       if (!station) {
         return handleResponse(res, 404, "Station not found", null);
