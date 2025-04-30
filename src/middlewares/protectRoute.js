@@ -35,7 +35,7 @@ const protectRoute = async (req, res, next) => {
       return res.status(404).json({ error: "User not found or invalid token" });
     }
     const {password,...userWithoutPassword}= user;
-console.log("user",userWithoutPassword)
+
     if (userWithoutPassword.role === "GAS_STATION") {
       const station = await getStationByUserIdService(userWithoutPassword.id);
       const validation = validateStationStatus(station);
