@@ -13,6 +13,10 @@ import bcrypt from "bcryptjs";
 import axios from 'axios';
 import { sendVerificationEmail } from "../utils/emailNotification/emails.js";
 import { createEmailVerificationService } from "../service/emailVerificationService.js";
+import geminiSuggestStations from "../utils/geminiService.js";
+import { getAverageRateByStationIdService } from "../service/feedbackService.js";
+import { getListFavoritesByUserIdService } from "../service/favoriteService.js";
+import { getAvailableFuelTypeByStationIdService } from "../service/fuelAvailabilityService.js";
 
 
 // Standardized response function
@@ -239,28 +243,103 @@ export const getAllStationsByStatus = async (req, res, next) => {
 
   export const getNearByStationsService = async (req, res, next) => {
     try {
-      const { latitude, longitude, radius = 10000, limit = 3 } = req.body;
-
-      // Ensure latitude and longitude are valid numbers
-    if (isNaN(latitude) || isNaN(longitude)) {
+      const user_id = req.user.id;
+      const { latitude, longitude, radius = 10000, limit = 8 } = req.body;
+  
+      if (isNaN(latitude) || isNaN(longitude)) {
         return res.status(400).json({ message: "Invalid latitude or longitude values" });
       }
   
-      // Call the service to get nearby stations
-      const stations = await getNearbyStationsService(latitude, longitude, radius, limit);
+      const favoritesStationIds = await getListFavoritesByUserIdService(user_id);
   
-      // Check if any stations were found
-      if (stations.length === 0) {
-        return handleResponse(res, 200, "No nearby stations found", stations); 
+      const nearStations = await getNearbyStationsService(latitude, longitude, radius, limit);
+      if (nearStations.length === 0) {
+        return handleResponse(res, 200, "No nearby stations found", nearStations);
+      }
+      const geminiSations = [];
+  
+      for (const station of nearStations) {
+        const averageRateRaw = await getAverageRateByStationIdService(station.id);
+        const averageRate = averageRateRaw !== null 
+          ? parseFloat(parseFloat(averageRateRaw).toFixed(2)) 
+          : null;
+  
+        const available_fuel = await getAvailableFuelTypeByStationIdService(station.id);
+  
+        geminiSations.push({
+          id: station?.id,
+          rating: averageRate,
+          distance: station.distance,
+          isFavorite: favoritesStationIds.includes(station.id),
+        });
       }
   
-      // Return the list of nearby stations with distance
-      return handleResponse(res, 200, "Nearby stations retrieved successfully", stations); 
+      const suggestion = await geminiSuggestStations(geminiSations);
+      const cleaned = suggestion.replace(/```json|```/g, '').trim();
+
+      let parsedSuggestion;
+      try {
+        parsedSuggestion = JSON.parse(cleaned);
+        } catch (error) {
+          console.error("Failed to parse suggestion:", error);
+          parsedSuggestion = {};
+          }
+          const suggestedStationIds = Object.values(parsedSuggestion).filter(Boolean);
+          let count = 0;
+          const suggestedStations = [];
+          for (const key in parsedSuggestion) {
+            const value = parsedSuggestion[key];
+            if (value) {
+              const averageRateRaw = await getAverageRateByStationIdService(parsedSuggestion[key]);
+              const averageRate = averageRateRaw !== null 
+                  ? parseFloat(parseFloat(averageRateRaw).toFixed(2)) 
+                  : null;
+  
+              const available_fuel = await getAvailableFuelTypeByStationIdService(parsedSuggestion[key]);
+              suggestedStations.push({
+                  rank:key,
+                  name:nearStations.find(station=>station.id==parsedSuggestion[key]).en_name,
+                  averageRate:averageRate,
+                  available_fuel:available_fuel,
+                  isFavorite: favoritesStationIds.includes(parsedSuggestion[key]),
+                  suggestion:true
+              })
+              count++;
+            }
+          }
+      
+          
+  
+          for (const station of nearStations) {
+            if(!suggestedStationIds.includes(station.id)){
+            const averageRateRaw = await getAverageRateByStationIdService(station.id);
+            const averageRate = averageRateRaw !== null 
+              ? parseFloat(parseFloat(averageRateRaw).toFixed(2)) 
+              : null;
+      
+            const available_fuel = await getAvailableFuelTypeByStationIdService(station.id);
+      
+            suggestedStations.push({
+              rank:count,
+              name: station.name,
+              rating: averageRate,
+              averageRate:averageRate,
+              available_fuel:available_fuel,
+              suggestion:false,
+            });
+            count ++;
+          }
+          }
+
+  
+      
+  
+      return handleResponse(res, 200, "Nearby stations retrieved successfully", suggestedStations);
     } catch (err) {
-      // Catch any errors and pass them to the error handler
       next(err);
     }
   };
+  
   
   
 export const validateTin = async (req, res) => {

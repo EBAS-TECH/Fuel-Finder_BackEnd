@@ -1,6 +1,6 @@
 
 
-import pool from "../config/db.js";
+import pool from "../../config/db.js";
 import { v4 as uuidv4 } from "uuid";
 
 const createSeedUsers = async () => {
@@ -39,7 +39,7 @@ const createSeedUsers = async () => {
       verified: true,
     },
     {
-      id: "72d55131-3cd0-4580-956d-577e2f3df46c",
+      id: "72d55131-3cd0-4580-956d-577e2f3df462",
       first_name: "John",
       last_name: "Doe",
       username: "driverjohn",
@@ -47,6 +47,50 @@ const createSeedUsers = async () => {
       email: "john.doe@driver.com",
       role: "DRIVER", 
       profile_pic: `https://avatar.iran.liara.run/public/boy?username=driverjohn`,
+      verified: true,
+    },
+    {
+      id: "02d55131-3cd0-4580-956d-577e2f3df462",
+      first_name: "Alice",
+      last_name: "Driver",
+      username: "driveralice",
+      password: "$2b$10$VdMsSaZ3ye4BRcBweFtZgeMR6LwwcZiN8n0zMXLcWRN2KWb4eBe9W", // same hashed password
+      email: "alice.driver@driver.com",
+      role: "DRIVER",
+      profile_pic: `https://avatar.iran.liara.run/public/girl?username=driveralice`,
+      verified: true,
+    },
+    {
+      id: "12d55131-3cd0-4580-956d-577e2f3df472",
+      first_name: "Bob",
+      last_name: "Driver",
+      username: "driverbob",
+      password: "$2b$10$VdMsSaZ3ye4BRcBweFtZgeMR6LwwcZiN8n0zMXLcWRN2KWb4eBe9W", // same hashed password
+      email: "bob.driver@driver.com",
+      role: "DRIVER",
+      profile_pic: `https://avatar.iran.liara.run/public/girl?username=driverbob`,
+      verified: true,
+    },
+    {
+      id: "55555131-3cd0-4580-956d-577e2f3df472",
+      first_name: "Petty",
+      last_name: "Driver",
+      username: "driverPetty",
+      password: "$2b$10$VdMsSaZ3ye4BRcBweFtZgeMR6LwwcZiN8n0zMXLcWRN2KWb4eBe9W", // same hashed password
+      email: "Petty.driver@driver.com",
+      role: "DRIVER",
+      profile_pic: `https://avatar.iran.liara.run/public/girl?username=driverPetty`,
+      verified: true,
+    },
+    {
+      id: "11d55131-3cd0-4580-956d-577e2f3df445",
+      first_name: "Bob",
+      last_name: "Station",
+      username: "stationbob",
+      password: "$2b$10$VdMsSaZ3ye4BRcBweFtZgeMR6LwwcZiN8n0zMXLcWRN2KWb4eBe9W", // same hashed password
+      email: "bob.station@gas.com",
+      role: "GAS_STATION",
+      profile_pic: `https://avatar.iran.liara.run/public/boy?username=stationbob`,
       verified: true,
     },
   ];
@@ -61,7 +105,7 @@ const createSeedUsers = async () => {
         [id, first_name, last_name, username, password, email, role, profile_pic, verified]
       );
     }
-    console.log("✅ Users seeded successfully.");
+    // console.log("✅ Users seeded successfully.");
   } catch (error) {
     // console.error("users are cre", error);
   }

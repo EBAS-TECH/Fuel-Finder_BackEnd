@@ -86,7 +86,6 @@ import { getAvailableFuelTypeByStationIdService } from '../service/fuelAvailabil
       for (const stationId of favoritesStationIds) {
         const station = await getStationByIdService(stationId);
         const averageRateRaw =  await getAverageRateByStationIdService(stationId);
-        console.log(typeof averageRateRaw)
         const averageRate = averageRateRaw !== null 
              ? parseFloat(parseFloat(averageRateRaw).toFixed(2)) 
               : null;console.log(averageRateRaw)
@@ -97,7 +96,6 @@ import { getAvailableFuelTypeByStationIdService } from '../service/fuelAvailabil
           averageRate: averageRate,
           available_fuel: available_fuel
         });
-        console.log(stations)
       }
       res.status(200).json({ success: true, data: stations });
     } catch (error) {

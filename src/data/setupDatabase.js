@@ -8,7 +8,9 @@ import createFuelAvailabilityTable from "./fuelAvailability.js";
 import createfeedbackTable from "./FeedbackTable.js";
 import createfavoriteTable from "./favoriteTable.js";
 import createFuelPriceTable from "./fuelPriceTable.js";
-import createSeedUsers from "./seedData.js"
+import createSeedUsers from "./seed/seedData.js"
+import createSeedUsersAndStations from "./seed/seedDataStationAndUser.js";
+// import seedFavorites from "./seed/favoriteSeedDate.js";
 
 
 const setupDatabase = async () => {
@@ -23,6 +25,9 @@ const setupDatabase = async () => {
     await createfavoriteTable();
     await createFuelPriceTable();
     await createSeedUsers();
+    await createSeedUsersAndStations();
+    // await seedFavorites();
+
     console.log(" Database setup complete!");
   } catch (err) {
     console.error(" Error setting up database:", err);
