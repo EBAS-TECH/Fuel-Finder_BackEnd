@@ -137,3 +137,15 @@ const result = await pool.query(query, [station_id, fuel_type]);
 return result.rows[0];
 };
 
+export const getAvailableFuelTypeByStationIdService = async (station_id) => {
+  const result = await pool.query(
+    `
+    SELECT fuel_type
+    FROM fuel_availability
+    WHERE station_id = $1 AND available = true
+    `,
+    [station_id]
+  );
+
+  return result.rows.map(row => row.fuel_type);
+};

@@ -6,13 +6,13 @@ import { changeAvailabilityStationByIdService, createStationService,
     getStationByIdService, 
     getStationByUserIdService, 
     updateStationByIdService, 
-    verifyStationByIdService } from "../models/stationModel.js";
-import { createUserService, deleteUserService, getUserByUsernameService } from "../models/userModel.js";
+    verifyStationByIdService } from "../service/stationService.js";
+import { createUserService, deleteUserService, getUserByUsernameService } from "../service/userService.js";
 import { validate as isUUID } from "uuid";
 import bcrypt from "bcryptjs";
 import axios from 'axios';
 import { sendVerificationEmail } from "../utils/emailNotification/emails.js";
-import { createEmailVerificationService } from "../models/emailVerificationModel.js";
+import { createEmailVerificationService } from "../service/emailVerificationService.js";
 
 
 // Standardized response function

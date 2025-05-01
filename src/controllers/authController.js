@@ -1,6 +1,6 @@
 import { sendVerificationEmail, sendWelcomeEmail } from "../utils/emailNotification/emails.js";
-import { createEmailVerificationService, getEmailVerificationByIdService, resendEmailVerificationByUserIdService, updateEmailVerificationByUserIdService } from "../models/emailVerificationModel.js";
-import  { createUserService, deleteUserService, getUserByEmailService, getUserByIdService, getUserByUsernameService, verifyUserByIdService } from "../models/userModel.js";
+import { createEmailVerificationService, getEmailVerificationByIdService, resendEmailVerificationByUserIdService, updateEmailVerificationByUserIdService } from "../service/emailVerificationService.js";
+import  { createUserService, deleteUserService, getUserByEmailService, getUserByIdService, getUserByUsernameService, verifyUserByIdService } from "../service/userService.js";
 import bcrypt from "bcryptjs";
 import { validate as isUUID } from "uuid";
 import generateToken from "../utils/generateTokens.js";

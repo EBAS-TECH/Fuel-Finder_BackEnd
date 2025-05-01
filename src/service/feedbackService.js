@@ -81,3 +81,12 @@ export const deleteFeedbackService = async (id) => {
   );
   return result.rows[0];
 };
+// get Average rank
+
+export const getAverageRateByStationIdService = async (station_id) => {
+  const result = await pool.query(
+    `SELECT AVG(rating) AS average_rate FROM feedbacks WHERE station_id = $1`,
+    [station_id]
+  );
+  return result.rows[0].average_rate;
+};

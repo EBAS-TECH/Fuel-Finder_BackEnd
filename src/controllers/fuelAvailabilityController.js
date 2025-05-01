@@ -8,7 +8,7 @@ import { createFuelAvailabilityService,
     getFuelAvailabilityByStationIdService, 
     updateFuelAvailabilityByIdService,
     getFuelAvailabilityByIdService,
-    getLastFuelAvailabilityByStationAndFuelTypeService } from "../models/fuelAvailabilityModel.js";
+    getLastFuelAvailabilityByStationAndFuelTypeService } from "../service/fuelAvailabilityService.js";
 
 const handleResponse = (res, status, message, data = null) => {
     res.status(status).json({

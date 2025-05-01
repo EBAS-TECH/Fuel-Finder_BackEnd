@@ -54,3 +54,11 @@ export const deleteFavoriteByUserIdAndStationIdService = async (user_id, station
   );
   return result.rows[0];
 };
+
+export const getListFavoritesByUserIdService = async (user_id) => {
+  const result = await pool.query(
+    `SELECT station_id FROM favorites WHERE user_id = $1 ORDER BY created_at DESC`,
+    [user_id]
+  );
+  return result.rows.map(row => row.station_id);
+};

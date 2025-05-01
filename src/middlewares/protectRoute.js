@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
-import { getStationByUserIdService } from "../models/stationModel.js";
-import { getUserByIdService } from "../models/userModel.js";
+import { getStationByUserIdService } from "../service/stationService.js";
+import { getUserByIdService } from "../service/userService.js";
 
 // 👇 Local helper method
 const validateStationStatus = (station) => {

@@ -4,10 +4,14 @@ import {
     getFavoritesByUserIdService,
     getFavoriteByUserIdAndStationIdService,
     deleteFavoriteByIdService,
-    deleteFavoriteByUserIdAndStationIdService
-  } from '../models/favoriteModel.js';
+    deleteFavoriteByUserIdAndStationIdService,
+    getListFavoritesByUserIdService
+  } from '../service/favoriteService.js';
   
   import { validate as isUUID } from "uuid";
+import { getStationByIdService } from '../service/stationService.js';
+import { getAverageRateByStationIdService } from '../service/feedbackService.js';
+import { getAvailableFuelTypeByStationIdService } from '../service/fuelAvailabilityService.js';
   
   // Create favorite
   export const createFavorite = async (req, res) => {
@@ -73,3 +77,30 @@ import {
     }
   };
   
+  // Get favorites by user
+  export const getListFavoritesByUser = async (req, res) => {
+    try {
+      const user_id = req.user.id;
+      const favoritesStationIds = await getListFavoritesByUserIdService(user_id);
+      const stations = [];
+      for (const stationId of favoritesStationIds) {
+        const station = await getStationByIdService(stationId);
+        const averageRateRaw =  await getAverageRateByStationIdService(stationId);
+        console.log(typeof averageRateRaw)
+        const averageRate = averageRateRaw !== null 
+             ? parseFloat(parseFloat(averageRateRaw).toFixed(2)) 
+              : null;console.log(averageRateRaw)
+        const available_fuel = await getAvailableFuelTypeByStationIdService(stationId);
+      
+        stations.push({
+          name: station?.en_name,
+          averageRate: averageRate,
+          available_fuel: available_fuel
+        });
+        console.log(stations)
+      }
+      res.status(200).json({ success: true, data: stations });
+    } catch (error) {
+      res.status(500).json({ success: false, message: "Failed to fetch user favorites", error });
+    }
+  };

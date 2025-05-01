@@ -4,7 +4,7 @@ import {
     getFuelPriceByTypeService,
     updateFuelPriceService,
     deleteFuelPriceByTypeService,
-  } from "../models/fuelPriceModel.js";
+  } from "../service/fuelPriceService.js";
   
   export const createOrUpdateFuelPrice = async (req, res) => {
     try {

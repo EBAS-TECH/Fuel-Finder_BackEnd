@@ -7,7 +7,7 @@ import {
     getFeedbackByIdService,
     getAllFeedbackService,
     getFeedbackByUserIdAndStationIdService
-  } from "../models/feedbackModel.js";
+  } from "../service/feedbackService.js";
 import { validate as isUUID } from "uuid";
   
   // Create new feedback

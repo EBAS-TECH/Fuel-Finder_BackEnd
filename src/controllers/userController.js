@@ -6,7 +6,7 @@ import {
     getUserByIdService,
     getUserByUsernameService,
     updateUserService,
-  } from "../models/userModel.js";
+  } from "../service/userService.js";
   import { validate as isUUID } from "uuid";
   import bcrypt from "bcryptjs";
   
