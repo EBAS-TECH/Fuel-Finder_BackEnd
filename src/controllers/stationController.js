@@ -323,7 +323,7 @@ export const getAllStationsByStatus = async (req, res, next) => {
             suggestedStations.push({
               rank:count,
               id:station.id,
-              name: station.name,
+              name: station.en_name,
               rating: averageRate,
               averageRate:averageRate,
               available_fuel:available_fuel,
