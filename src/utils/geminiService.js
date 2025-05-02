@@ -11,7 +11,7 @@ You are a helpful assistant. Based on the following list of fuel stations, rank 
 1. Distance in kilometers (closer is better)
 2. Favorite status (true = user's preferred station)
 3. User rating out of 5 (higher is better)
-4. Availability in hours remaining this month (higher is better)
+4. Availability in millisecond remaining this month (higher is better)
 
 Here are the stations:
 

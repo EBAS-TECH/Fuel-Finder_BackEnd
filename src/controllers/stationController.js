@@ -263,11 +263,15 @@ export const getAllStationsByStatus = async (req, res, next) => {
         const now = new Date();
         const thirtyDaysAgo = new Date();
         thirtyDaysAgo.setDate(now.getDate() - 30);
+       
         const availability = await getAllAvailabilityHours(
           thirtyDaysAgo.toISOString(),
           now.toISOString(),
           station.id
         );
+        const totalMilliseconds = availability.reduce((sum, item) => {
+          return sum + parseFloat(item.total_milliseconds);
+        }, 0);
         
         const averageRateRaw = await getAverageRateByStationIdService(station.id);
         const averageRate = averageRateRaw !== null 
@@ -282,7 +286,7 @@ export const getAllStationsByStatus = async (req, res, next) => {
           rating: averageRate,
           distance: station.distance,
           isFavorite: favoritesStationIds.includes(station.id),
-          
+          availability:totalMilliseconds
         });
       }
       
@@ -298,7 +302,7 @@ export const getAllStationsByStatus = async (req, res, next) => {
           parsedSuggestion = {};
           }
           const suggestedStationIds = Object.values(parsedSuggestion).filter(Boolean);
-          let count = 0;
+          let count = 1;
           const suggestedStations = [];
           for (const key in parsedSuggestion) {
             const value = parsedSuggestion[key];
@@ -318,14 +322,14 @@ export const getAllStationsByStatus = async (req, res, next) => {
                   isFavorite: favoritesStationIds.includes(parsedSuggestion[key]),
                   suggestion:true,
                   latitude:nearStations.find(station=>station.id==parsedSuggestion[key]).latitude,
-                  longitude:nearStations.find(station=>station.id==parsedSuggestion[key]).longitude
+                  longitude:nearStations.find(station=>station.id==parsedSuggestion[key]).longitude,
+                  distance:nearStations.find(station=>station.id==parsedSuggestion[key]).distance
               })
               count++;
             }
           }
       
           
-  
           for (const station of nearStations) {
             if(!suggestedStationIds.includes(station.id)){
             const averageRateRaw = await getAverageRateByStationIdService(station.id);
@@ -336,7 +340,7 @@ export const getAllStationsByStatus = async (req, res, next) => {
             const available_fuel = await getAvailableFuelTypeByStationIdService(station.id);
       
             suggestedStations.push({
-              rank:count,
+              rank:count.toString(),
               id:station.id,
               name: station.en_name,
               rating: averageRate,
@@ -345,7 +349,8 @@ export const getAllStationsByStatus = async (req, res, next) => {
               isFavorite:favoritesStationIds.includes(station.id),
               suggestion:false,
               latitude:station.latitude,
-              longitude:station.longitude
+              longitude:station.longitude,
+              distance:station.distance
             });
             count ++;
           }

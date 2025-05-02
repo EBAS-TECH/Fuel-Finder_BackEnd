@@ -154,13 +154,16 @@ export const getAllAvailabilityHours = async (start, end, stationId) => {
   const query = `
     SELECT 
       fuel_type,
-      SUM(EXTRACT(EPOCH FROM availability_duration) * 1000) AS total_milliseconds
+      SUM(
+        EXTRACT(EPOCH FROM (LEAST(COALESCE(down_time, $3), $3) - GREATEST(up_time, $2)))
+        * 1000
+      ) AS total_milliseconds
     FROM 
       fuel_availability
     WHERE 
       station_id = $1
-      AND up_time >= $2
-      AND down_time <= $3
+      AND up_time <= $3
+      AND (down_time IS NULL OR down_time >= $2)
     GROUP BY 
       fuel_type;
   `;
