@@ -34,7 +34,7 @@ async function createSeedPrice() {
     }
     console.log('✅ Fuel prices data inserted successfully.');
   } catch (err) {
-    console.error('❌ Error inserting fuel prices data:', err);
+    // console.error('❌ Error inserting fuel prices data:', err);
   }
 }
 
