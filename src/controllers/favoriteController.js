@@ -92,6 +92,7 @@ import { getAvailableFuelTypeByStationIdService } from '../service/fuelAvailabil
         const available_fuel = await getAvailableFuelTypeByStationIdService(stationId);
       
         stations.push({
+          id:station?.id,
           name: station?.en_name,
           averageRate: averageRate,
           available_fuel: available_fuel

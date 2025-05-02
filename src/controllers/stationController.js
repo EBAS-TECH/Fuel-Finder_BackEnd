@@ -298,6 +298,7 @@ export const getAllStationsByStatus = async (req, res, next) => {
               const available_fuel = await getAvailableFuelTypeByStationIdService(parsedSuggestion[key]);
               suggestedStations.push({
                   rank:key,
+                  id:parsedSuggestion[key],
                   name:nearStations.find(station=>station.id==parsedSuggestion[key]).en_name,
                   averageRate:averageRate,
                   available_fuel:available_fuel,
@@ -321,6 +322,7 @@ export const getAllStationsByStatus = async (req, res, next) => {
       
             suggestedStations.push({
               rank:count,
+              id:station.id,
               name: station.name,
               rating: averageRate,
               averageRate:averageRate,
