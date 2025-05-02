@@ -16,7 +16,7 @@ import { createEmailVerificationService } from "../service/emailVerificationServ
 import geminiSuggestStations from "../utils/geminiService.js";
 import { getAverageRateByStationIdService } from "../service/feedbackService.js";
 import { getListFavoritesByUserIdService } from "../service/favoriteService.js";
-import { getAvailableFuelTypeByStationIdService } from "../service/fuelAvailabilityService.js";
+import { getAllAvailabilityHours, getAvailableFuelTypeByStationIdService } from "../service/fuelAvailabilityService.js";
 
 
 // Standardized response function
@@ -253,30 +253,43 @@ export const getAllStationsByStatus = async (req, res, next) => {
       const favoritesStationIds = await getListFavoritesByUserIdService(user_id);
   
       const nearStations = await getNearbyStationsService(latitude, longitude, radius, limit);
+      // console.log(nearStations)
       if (nearStations.length === 0) {
         return handleResponse(res, 200, "No nearby stations found", nearStations);
       }
       const geminiSations = [];
   
       for (const station of nearStations) {
+        const now = new Date();
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(now.getDate() - 30);
+        const availability = await getAllAvailabilityHours(
+          thirtyDaysAgo.toISOString(),
+          now.toISOString(),
+          station.id
+        );
+        
         const averageRateRaw = await getAverageRateByStationIdService(station.id);
         const averageRate = averageRateRaw !== null 
           ? parseFloat(parseFloat(averageRateRaw).toFixed(2)) 
           : null;
-  
-        const available_fuel = await getAvailableFuelTypeByStationIdService(station.id);
+        
+
+          const available_fuel = await getAvailableFuelTypeByStationIdService(station.id);
   
         geminiSations.push({
           id: station?.id,
           rating: averageRate,
           distance: station.distance,
           isFavorite: favoritesStationIds.includes(station.id),
+          
         });
       }
+      
   
       const suggestion = await geminiSuggestStations(geminiSations);
       const cleaned = suggestion.replace(/```json|```/g, '').trim();
-
+      
       let parsedSuggestion;
       try {
         parsedSuggestion = JSON.parse(cleaned);
@@ -303,7 +316,9 @@ export const getAllStationsByStatus = async (req, res, next) => {
                   averageRate:averageRate,
                   available_fuel:available_fuel,
                   isFavorite: favoritesStationIds.includes(parsedSuggestion[key]),
-                  suggestion:true
+                  suggestion:true,
+                  latitude:nearStations.find(station=>station.id==parsedSuggestion[key]).latitude,
+                  longitude:nearStations.find(station=>station.id==parsedSuggestion[key]).longitude
               })
               count++;
             }
@@ -327,7 +342,10 @@ export const getAllStationsByStatus = async (req, res, next) => {
               rating: averageRate,
               averageRate:averageRate,
               available_fuel:available_fuel,
+              isFavorite:favoritesStationIds.includes(station.id),
               suggestion:false,
+              latitude:station.latitude,
+              longitude:station.longitude
             });
             count ++;
           }

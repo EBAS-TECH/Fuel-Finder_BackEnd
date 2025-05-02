@@ -9,9 +9,9 @@ async function geminiSuggestStations(inputData) {
 You are a helpful assistant. Based on the following list of fuel stations, rank them in order of best suggestion for the driver using these factors:
 
 1. Distance in kilometers (closer is better)
-2. User rating out of 5 (higher is better)
-3. Availability in hours remaining this month (higher is better)
-4. Favorite status (true = user's preferred station)
+2. Favorite status (true = user's preferred station)
+3. User rating out of 5 (higher is better)
+4. Availability in hours remaining this month (higher is better)
 
 Here are the stations:
 

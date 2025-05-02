@@ -125,7 +125,7 @@ export const deleteStationByIdService = async (id) => {
     return result.rows[0]; // returns undefined if station with the given ID doesn't exist
   };
 
-  export const getNearbyStationsService = async (latitude, longitude, radius = 10000, limit = 3) => {
+  export const getNearbyStationsService = async (latitude, longitude, radius = 10000, limit ) => {
     const query = `
       SELECT id, en_name, am_name, address,
              ST_Distance(location, ST_SetSRID(ST_MakePoint($1, $2), 4326)) AS distance,

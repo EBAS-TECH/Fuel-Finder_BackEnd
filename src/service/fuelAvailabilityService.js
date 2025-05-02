@@ -149,3 +149,23 @@ export const getAvailableFuelTypeByStationIdService = async (station_id) => {
 
   return result.rows.map(row => row.fuel_type);
 };
+
+export const getAllAvailabilityHours = async (start, end, stationId) => {
+  const query = `
+    SELECT 
+      fuel_type,
+      SUM(EXTRACT(EPOCH FROM availability_duration) * 1000) AS total_milliseconds
+    FROM 
+      fuel_availability
+    WHERE 
+      station_id = $1
+      AND up_time >= $2
+      AND down_time <= $3
+    GROUP BY 
+      fuel_type;
+  `;
+
+  const result = await pool.query(query, [stationId, start, end]);
+  return result.rows;
+};
+
