@@ -5,6 +5,7 @@ import bcrypt from "bcryptjs";
 import { validate as isUUID } from "uuid";
 import generateToken from "../utils/generateTokens.js";
 import { getUserById } from "./userController.js";
+import { getStationByUserIdService } from "../service/stationService.js";
 
 
 // Standardized response function
@@ -94,6 +95,13 @@ export const login = async (req, res) => {
 
         // Respond with user data (update field names based on your table)
         const { password, ...userWithoutPassword } = user;
+        if(user.role === 'GAS_STATION'){
+          const station = await getStationByUserIdService(user.id);
+          if(station?.status == "VERIFIED"){
+            userWithoutPassword.station_approved = true;
+          }
+          else userWithoutPassword.station_approved = false;
+        }
         res.status(200).json({
             message: "Login successful",
             user: {
