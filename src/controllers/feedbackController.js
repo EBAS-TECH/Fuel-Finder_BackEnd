@@ -6,9 +6,11 @@ import {
     deleteFeedbackService,
     getFeedbackByIdService,
     getAllFeedbackService,
-    getFeedbackByUserIdAndStationIdService
+    getFeedbackByUserIdAndStationIdService,
+    getRateNumberByStationIdService
   } from "../service/feedbackService.js";
 import { validate as isUUID } from "uuid";
+import { getStationByUserIdService } from "../service/stationService.js";
   
   // Create new feedback
   export const createFeedback = async (req, res) => {
@@ -145,4 +147,18 @@ import { validate as isUUID } from "uuid";
       });
     }
   };
-  
+  // get rate numbers
+  export const getRateNumberByUserId = async (req, res) => {
+    try {
+
+      const user_id = req.user.id;
+      const station = await getStationByUserIdService(user_id);
+      const feedback = await getRateNumberByStationIdService(station.id);
+      if (!feedback) {
+        return res.status(404).json({ success: false, message: "rating not found" });
+      }
+      res.status(200).json({ success: true, data: feedback });
+    } catch (error) {
+      res.status(500).json({ success: false, message: "Failed to fetch rate feedback", error });
+    }
+  };

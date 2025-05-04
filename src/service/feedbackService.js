@@ -90,3 +90,22 @@ export const getAverageRateByStationIdService = async (station_id) => {
   );
   return result.rows[0].average_rate;
 };
+export const getRateNumberByStationIdService = async (station_id) => {
+  const result = await pool.query(
+    `
+    SELECT 
+      AVG(rating) AS average_rate,
+      COUNT(*) FILTER (WHERE rating = 1) AS star_1,
+      COUNT(*) FILTER (WHERE rating = 2) AS star_2,
+      COUNT(*) FILTER (WHERE rating = 3) AS star_3,
+      COUNT(*) FILTER (WHERE rating = 4) AS star_4,
+      COUNT(*) FILTER (WHERE rating = 5) AS star_5,
+      COUNT(*) AS total
+    FROM feedbacks
+    WHERE station_id = $1
+    `,
+    [station_id]
+  );
+
+  return result.rows[0];
+};
