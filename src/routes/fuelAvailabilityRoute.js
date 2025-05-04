@@ -8,7 +8,8 @@ import { createFuelAvailability,
     getFuelAvailabilitiesByStationId, 
     getFuelAvailabilityByStationAndFuelType, 
     updateFuelAvailabilityById,
-    getLastFuelAvailabilityByStationAndFuelType } from "../controllers/fuelAvailabilityController.js";
+    getLastFuelAvailabilityByStationAndFuelType, 
+    getAllAvailabilityHoursByUserId} from "../controllers/fuelAvailabilityController.js";
 import authorizeRoles from "../middlewares/authorizeRole.js";
 
 
@@ -33,8 +34,9 @@ router.put('/:id',protectRoute,authorizeRoles('GAS_STATION','ADMIN'),updateFuelA
 // Delete a fuel availability by ID
 router.delete('/:id',protectRoute,deleteFuelAvailabilityById);
 
-router.get('/StationAndFuelType',protectRoute,getFuelAvailabilityByStationAndFuelType)
+router.get('/StationAndFuelType',protectRoute,getFuelAvailabilityByStationAndFuelType);
 
-router.put('/isAvailable/:id',protectRoute,getLastFuelAvailabilityByStationAndFuelType)
+router.put('/isAvailable/:id',protectRoute,getLastFuelAvailabilityByStationAndFuelType);
+router.post('/duration',protectRoute,getAllAvailabilityHoursByUserId);``
 
 export default router;

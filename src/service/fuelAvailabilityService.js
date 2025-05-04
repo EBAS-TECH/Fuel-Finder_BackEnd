@@ -172,3 +172,4 @@ export const getAllAvailabilityHours = async (start, end, stationId) => {
   return result.rows;
 };
 
+

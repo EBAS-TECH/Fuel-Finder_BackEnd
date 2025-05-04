@@ -8,7 +8,10 @@ import { createFuelAvailabilityService,
     getFuelAvailabilityByStationIdService, 
     updateFuelAvailabilityByIdService,
     getFuelAvailabilityByIdService,
-    getLastFuelAvailabilityByStationAndFuelTypeService } from "../service/fuelAvailabilityService.js";
+    getLastFuelAvailabilityByStationAndFuelTypeService, 
+    getAllAvailabilityHours} from "../service/fuelAvailabilityService.js";
+import { getStationByUserId } from "./stationController.js";
+import { getStationByUserIdService } from "../service/stationService.js";
 
 const handleResponse = (res, status, message, data = null) => {
     res.status(status).json({
@@ -188,5 +191,23 @@ const handleResponse = (res, status, message, data = null) => {
             }
           };
           
+          export const getAllAvailabilityHoursByUserId = async (req,res,next) =>{
+            try {
+              const user_id = req.user.id;
+
+              const {start_date,end_date} = req.body;
+              
+              const station = await getStationByUserIdService(user_id);
+              const fuelAvailability = await getAllAvailabilityHours(start_date,end_date,station?.id);
+          
+              if (fuelAvailability.length === 0) {
+                return handleResponse(res, 404, "No fuel availability found for the this station", null);
+              }
+          
+              handleResponse(res, 200, "Fuel availability retrieved successfully", fuelAvailability);
+            } catch (err) {
+              next(err);
+            }
+          }
           
 
