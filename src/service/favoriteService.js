@@ -27,11 +27,9 @@ export const getFavoritesByUserIdService = async (user_id) => {
        stations.id AS station_id,
        stations.en_name,
        stations.am_name,
-       stations.tin_number,
        ST_Y(stations.location) AS latitude,
        ST_X(stations.location) AS longitude,
        stations.address,
-       stations.availability,
        stations.status,
        stations.updated_at
      FROM favorites
