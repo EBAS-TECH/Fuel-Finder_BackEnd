@@ -51,10 +51,8 @@ import { getAvailableFuelTypeByStationIdService } from '../service/fuelAvailabil
       const user_id = req.user.id;
       const favorites = await getFavoritesByUserIdService(user_id);
       for (const favorite of favorites) {
-        console.log(favorite.station_id)
       const available_fuel = await getAvailableFuelTypeByStationIdService(favorite.station_id);
       favorite.available_fuel = available_fuel
-      console.log(favorite)
       const averageRateRaw = await getAverageRateByStationIdService(favorite.station_id);
             const averageRate = averageRateRaw !== null 
               ? parseFloat(parseFloat(averageRateRaw).toFixed(2)) 
