@@ -102,7 +102,7 @@ import { deleteFavoritesByUserIdService } from "../service/favoriteService.js";
       await deleteFavoritesByUserIdService(req.params.id);
       const deletedUser = await deleteUserService(req.params.id);
       if (!deletedUser) return handleResponse(res, 404, "User not found");
-      handleResponse(res, 200, "User deleted successfully", deleteUser);
+      handleResponse(res, 200, "User deleted successfully", deletedUser);
     } catch (err) {
       next(err);
     }
