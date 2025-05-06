@@ -61,6 +61,7 @@ import { deleteFavoritesByUserIdService } from "../service/favoriteService.js";
   
   export const getUserById = async (req, res) => {
     if (!isUUID(req.params.id)) {
+      console.log(req.params.id)
       return res.status(400).json({ error: "Invalid token payload: userId is not a valid UUID" });
     }
     try {

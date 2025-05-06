@@ -173,3 +173,15 @@ export const getAllAvailabilityHours = async (start, end, stationId) => {
 };
 
 
+// Delete fuel availability record by station ID
+export const deleteFuelAvailabilityByStaionIdService = async (station_id) => {
+  const query = `
+    DELETE FROM fuel_availability 
+    WHERE station_id = $1 
+    RETURNING *
+  `;
+  const result = await pool.query(query, [station_id]);
+  return result.rows[0]; // returns undefined if the record was not found
+};
+
+

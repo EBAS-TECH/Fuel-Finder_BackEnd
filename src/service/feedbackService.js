@@ -118,3 +118,11 @@ export const deleteFeedbacksByUserIdService = async (userId) => {
   return result.rows; // return all deleted feedbacks
 };
 
+export const deleteFeedbacksByStationIdService = async (stationId) => {
+  const result = await pool.query(
+    `DELETE FROM feedbacks WHERE station_id = $1 RETURNING *`,
+    [stationId]
+  );
+  return result.rows; // return all deleted feedbacks
+};
+

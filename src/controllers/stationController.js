@@ -14,9 +14,9 @@ import axios from 'axios';
 import { sendVerificationEmail } from "../utils/emailNotification/emails.js";
 import { createEmailVerificationService } from "../service/emailVerificationService.js";
 import geminiSuggestStations from "../utils/geminiService.js";
-import { getAverageRateByStationIdService } from "../service/feedbackService.js";
-import { getListFavoritesByUserIdService } from "../service/favoriteService.js";
-import { getAllAvailabilityHours, getAvailableFuelTypeByStationIdService } from "../service/fuelAvailabilityService.js";
+import { deleteFeedbacksByStationIdService, getAverageRateByStationIdService } from "../service/feedbackService.js";
+import { deleteFavoritesByStationIdService, getListFavoritesByUserIdService } from "../service/favoriteService.js";
+import { deleteFuelAvailabilityByStaionIdService, getAllAvailabilityHours, getAvailableFuelTypeByStationIdService } from "../service/fuelAvailabilityService.js";
 
 
 // Standardized response function
@@ -164,6 +164,9 @@ export const getAllStationsByStatus = async (req, res, next) => {
     const { id } = req.params;
   
     try {
+      await deleteFuelAvailabilityByStaionIdService(id);
+      await deleteFeedbacksByStationIdService(id);
+      await deleteFavoritesByStationIdService(id);
       const deletedStation = await deleteStationByIdService(id);
   
       if (!deletedStation) {

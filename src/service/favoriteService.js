@@ -87,3 +87,12 @@ export const deleteFavoritesByUserIdService = async (userId) => {
   );
   return result.rows; // return all deleted favorites
 };
+
+export const deleteFavoritesByStationIdService = async (userId) => {
+  const result = await pool.query(
+    `DELETE FROM favorites WHERE user_id = $1 RETURNING *`,
+    [userId]
+  );
+  return result.rows; 
+};
+
