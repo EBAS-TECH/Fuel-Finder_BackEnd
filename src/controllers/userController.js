@@ -9,6 +9,8 @@ import {
   } from "../service/userService.js";
   import { validate as isUUID } from "uuid";
   import bcrypt from "bcryptjs";
+import { deleteFeedbacksByUserIdService } from "../service/feedbackService.js";
+import { deleteFavoritesByUserIdService } from "../service/favoriteService.js";
   
   
   // Standardized response function
@@ -96,6 +98,8 @@ import {
   
   export const deleteUserById = async (req, res, next) => {
     try {
+      await deleteFeedbacksByUserIdService(req.params.id);
+      await deleteFavoritesByUserIdService(req.params.id);
       const deletedUser = await deleteUserService(req.params.id);
       if (!deletedUser) return handleResponse(res, 404, "User not found");
       handleResponse(res, 200, "User deleted successfully", deleteUser);

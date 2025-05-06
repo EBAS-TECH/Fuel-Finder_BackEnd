@@ -109,3 +109,12 @@ export const getRateNumberByStationIdService = async (station_id) => {
 
   return result.rows[0];
 };
+
+export const deleteFeedbacksByUserIdService = async (userId) => {
+  const result = await pool.query(
+    `DELETE FROM feedbacks WHERE user_id = $1 RETURNING *`,
+    [userId]
+  );
+  return result.rows; // return all deleted feedbacks
+};
+
