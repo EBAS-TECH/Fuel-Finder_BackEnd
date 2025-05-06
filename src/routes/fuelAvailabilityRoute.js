@@ -37,6 +37,6 @@ router.delete('/:id',protectRoute,deleteFuelAvailabilityById);
 router.get('/StationAndFuelType',protectRoute,getFuelAvailabilityByStationAndFuelType);
 
 router.put('/isAvailable/:id',protectRoute,getLastFuelAvailabilityByStationAndFuelType);
-router.post('/duration',protectRoute,getAllAvailabilityHoursByUserId);``
+router.post('/duration',protectRoute,getAllAvailabilityHoursByUserId);
 
 export default router;

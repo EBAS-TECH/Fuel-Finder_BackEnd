@@ -168,7 +168,7 @@ export const getAllAvailabilityHours = async (start, end, stationId) => {
       fuel_type;
   `;
 
-  const result = await pool.query(query, [stationId, start, end]);
+  const result = await pool.query(query, [stationId,start,end]);
   return result.rows;
 };
 

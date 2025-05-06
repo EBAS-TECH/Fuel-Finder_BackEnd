@@ -24,19 +24,24 @@ const handleResponse = (res, status, message, data = null) => {
   export const createFuelAvailability = async (req, res) => {
 
     try {
-      const { station_id, fuel_type} = req.body;
+      const { fuel_type} = req.body;
+      const user_id = req.user.id;
+    
+      const station = await getStationByUserIdService(user_id);
       
-        const fuelAvailabilityOld = await getLastFuelAvailabilityByStationAndFuelTypeService(station_id,fuel_type,);
+        const fuelAvailabilityOld = await getLastFuelAvailabilityByStationAndFuelTypeService(station.id,fuel_type,);
     
         if (fuelAvailabilityOld?.available) {
-          return handleResponse(res, 404, "there is available fuel can no start fuel", null);
+          const updatedFuelAvailability = await updateFuelAvailabilityByIdService(station.id,fuel_type);
+          return handleResponse(res, 200, "Fuel availability off successfully", updatedFuelAvailability);
+          
         }
       const fuelAvailability = await createFuelAvailabilityService(
-        station_id,
+        station.id,
         fuel_type,
       );
   
-      return res.status(201).json({ message: "Fuel availability created successfully", data: fuelAvailability });
+      return res.status(201).json({ message: "Fuel availability on successfully", data: fuelAvailability });
     } catch (error) {
       console.error("Error creating fuel availability:", error);
       return res.status(500).json({ message: "Internal server error" });
@@ -191,23 +196,26 @@ const handleResponse = (res, status, message, data = null) => {
             }
           };
           
-          export const getAllAvailabilityHoursByUserId = async (req,res,next) =>{
+          export const getAllAvailabilityHoursByUserId = async (req, res, next) => {
             try {
               const user_id = req.user.id;
-
-              const {start_date,end_date} = req.body;
-              
+    
               const station = await getStationByUserIdService(user_id);
-              const fuelAvailability = await getAllAvailabilityHours(start_date,end_date,station?.id);
+               const { start_date, end_date } = req.body; // Or req.query if it's a GET request
+              if (!station) {
+                return handleResponse(res, 404, "Station not found for this user", null);
+              }
+          
+              const fuelAvailability = await getAllAvailabilityHours(start_date, end_date, station.id);
           
               if (fuelAvailability.length === 0) {
-                return handleResponse(res, 404, "No fuel availability found for the this station", null);
+                return handleResponse(res, 404, "No fuel availability found for this station", null);
               }
           
               handleResponse(res, 200, "Fuel availability retrieved successfully", fuelAvailability);
             } catch (err) {
               next(err);
             }
-          }
+          };
           
 
