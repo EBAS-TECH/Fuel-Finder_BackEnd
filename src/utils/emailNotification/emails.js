@@ -1,4 +1,5 @@
 import {
+	FORGOT_PASSWORD_EMAIL_TEMPLATE,
 	PASSWORD_RESET_REQUEST_TEMPLATE,
 	PASSWORD_RESET_SUCCESS_TEMPLATE,
 	VERIFICATION_EMAIL_TEMPLATE,
@@ -82,3 +83,22 @@ export const sendResetSuccessEmail = async (email) => {
 		throw new Error(`Error sending password reset success email: ${error}`);
 	}
 };
+
+
+export const sendForgotPasswordEmail = async (email, verificationToken) => {
+	const htmlContent = FORGOT_PASSWORD_EMAIL_TEMPLATE.replace("{resetCode}", verificationToken);
+  
+	try {
+	  const info = await transporter.sendMail({
+		from: `"${sender.name}"`,
+		to: email,
+		subject: "Reset your password",
+		html: htmlContent,
+	  });
+  
+	  console.log("Email sent:", info.messageId);
+	} catch (error) {
+	  console.error("Failed to send email:", error);
+	  throw new Error("Could not send verification email");
+	}
+  };

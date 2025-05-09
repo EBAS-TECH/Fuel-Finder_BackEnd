@@ -1,5 +1,5 @@
-import { sendVerificationEmail, sendWelcomeEmail } from "../utils/emailNotification/emails.js";
-import { createEmailVerificationService, getEmailVerificationByIdService, resendEmailVerificationByUserIdService, updateEmailVerificationByUserIdService } from "../service/emailVerificationService.js";
+import { sendForgotPasswordEmail, sendVerificationEmail, sendWelcomeEmail } from "../utils/emailNotification/emails.js";
+import { createEmailVerificationService, forgotPasswordByEmailService, getEmailVerificationByIdService, resendEmailVerificationByUserIdService, updateEmailVerificationByUserIdService } from "../service/emailVerificationService.js";
 import  { createUserService, deleteUserService, getUserByEmailService, getUserByIdService, getUserByUsernameService, verifyUserByIdService } from "../service/userService.js";
 import bcrypt from "bcryptjs";
 import { validate as isUUID } from "uuid";
@@ -198,6 +198,37 @@ export const resendEmailVerification = async (req, res) => {
       res.status(200).json({
         message: 'resend Email verification data ',
         data: updatedVerification,
+      });
+      
+    } catch (error) {
+      console.error('Error resending email verification:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  };
+
+export const forgotPassWord = async (req, res) => {
+    try {
+      const  email  = req.body.email;        // assume user_id comes from URL params
+      const user = await getUserByEmailService(email);
+      if(!user){
+        return res.status(404).json({ message: 'User not found with this email' });
+      }
+      const verificationToken = Math.floor(100000+Math.random()*900000).toString();
+      const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
+  
+      const updatedVerification = await forgotPasswordByEmailService(
+        user.id,
+        verificationToken,
+        { verification_expires_at:expiresAt }
+      );
+      
+      if (!updatedVerification) {
+      await createEmailVerificationService(user.id,verificationToken,{ verification_expires_at:expiresAt })
+      }
+      await sendForgotPasswordEmail(email,verificationToken);
+      res.status(200).json({
+        message: 'forgot password send ',
+        user_id: user.id,
       });
       
     } catch (error) {
