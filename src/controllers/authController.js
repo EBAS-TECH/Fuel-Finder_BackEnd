@@ -1,6 +1,6 @@
 import { sendForgotPasswordEmail, sendVerificationEmail, sendWelcomeEmail } from "../utils/emailNotification/emails.js";
 import { createEmailVerificationService, forgotPasswordByEmailService, getEmailVerificationByIdService, resendEmailVerificationByUserIdService, updateEmailVerificationByUserIdService } from "../service/emailVerificationService.js";
-import  { createUserService, deleteUserService, getUserByEmailService, getUserByIdService, getUserByUsernameService, verifyUserByIdService } from "../service/userService.js";
+import  { createUserService, deleteUserService, getUserByEmailService, getUserByIdService, getUserByUsernameService, updateNewPasswordService, verifyUserByIdService } from "../service/userService.js";
 import bcrypt from "bcryptjs";
 import { validate as isUUID } from "uuid";
 import generateToken from "../utils/generateTokens.js";
@@ -236,3 +236,82 @@ export const forgotPassWord = async (req, res) => {
       res.status(500).json({ message: 'Internal server error' });
     }
   };
+
+
+  export const forgotEmailVerify = async (req, res) => {
+    // Validate that the userId in the URL is a valid UUID
+    if (!isUUID(req.params.id)) {
+      return res.status(400).json({ error: "Invalid token payload: userId is not a valid UUID" });
+    }
+  
+    try {
+      const user_id = req.params.id;
+      const token = req.body.token; // Token sent in the request body
+      const user = await getUserByIdService(user_id); // Retrieve user from DB
+  
+      if (!user) {
+        return res.status(404).json({ error: "User not found by this ID" });
+      }
+  
+      const emailVerification = await getEmailVerificationByIdService(user_id); // Retrieve email verification status
+      if (!emailVerification) {
+        return res.status(404).json({ error: "Email Verification not found" });
+      }
+  
+      
+  
+      // Check if verification token is still valid
+      if (new Date(emailVerification?.verification_expires_at) > new Date()) {
+        if (emailVerification?.token === token) { 
+          await verifyUserByIdService(user_id); 
+          const updatedEmailVerification = await updateEmailVerificationByUserIdService(user_id); // Update verification status in DB
+          
+  
+          return res.status(200).json({
+            message: "Email verified successfully to reset your password",
+            user_id: user_id,
+          });
+        } else {
+          return res.status(400).json({ message: "Verification token not correct." });
+        }
+      } else {
+        return res.status(400).json({ message: "Verification token has expired." });
+      }
+  
+    } catch (error) {
+      console.error("Error in email verify controller:", error.message);
+      res.status(500).json({ error: error.message });
+    }
+  };
+
+
+  export const newPassword = async (req, res) => {
+    if (!isUUID(req.params.id)) {
+      return res.status(400).json({ error: "Invalid token payload: userId is not a valid UUID" });
+    }
+  
+    try {
+      const user_id = req.params.id;
+      const newPassword = req.body.new_password;
+  
+      const user = await getUserByIdService(user_id); // Retrieve user from DB
+      if (!user) {
+        return res.status(404).json({ error: "User not found by this ID" });
+      }
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(newPassword, salt);
+  
+      await updateNewPasswordService(user_id, hashedPassword); // Update the user's password
+      // Send confirmation email
+      await sendForgotPasswordEmail(user.email, user.username);
+  
+      return res.status(200).json({
+        message: "Password changed successfully",
+      });
+  
+    } catch (error) {
+      console.error("Error in newPassword controller:", error.message);
+      return res.status(500).json({ error: error.message });
+    }
+  };
+  

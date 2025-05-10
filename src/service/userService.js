@@ -62,5 +62,11 @@ export const changePasswordService = async (id, hashedPassword) => {
   return updateResult.rows[0];
 };
 
-
+export const updateNewPasswordService = async (id,newPassword) => {
+  const result = await pool.query(
+    "UPDATE users SET password=$1 WHERE id=$2 RETURNING *",
+    [newPassword, id]
+  );
+  return result.rows[0];
+};
 
