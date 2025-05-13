@@ -14,9 +14,9 @@ import bcrypt from "bcryptjs";
 import axios from 'axios';
 import { sendVerificationEmail } from "../utils/emailNotification/emails.js";
 import { createEmailVerificationService } from "../service/emailVerificationService.js";
-import { geminiSuggestStationsForNearStations } from "../utils/geminiService.js";
+import { geminiCategorizeAndSuggestStations, geminiSuggestStationsForNearStations } from "../utils/geminiService.js";
 import { deleteFeedbacksByStationIdService, getAverageRateByStationIdService } from "../service/feedbackService.js";
-import { deleteFavoritesByStationIdService, getListFavoritesByUserIdService } from "../service/favoriteService.js";
+import { deleteFavoritesByStationIdService, getFavoriteByStationIdService, getListFavoritesByUserIdService } from "../service/favoriteService.js";
 import { deleteFuelAvailabilityByStaionIdService, getAllAvailabilityHours, getAvailableFuelTypeByStationIdService } from "../service/fuelAvailabilityService.js";
 
 
@@ -412,7 +412,7 @@ export const getStationsReports = async (req, res, next) => {
     
     const geminiSations = [];
     const stations = await getAllStationsService();
-    for (const station of geminiSations) {
+    for (const station of stations) {
       const now = new Date();
       const thirtyDaysAgo = new Date();
       thirtyDaysAgo.setDate(now.getDate() - 30);
@@ -431,19 +431,21 @@ export const getStationsReports = async (req, res, next) => {
         ? parseFloat(parseFloat(averageRateRaw).toFixed(2)) 
         : null;
       
+        const favorites = await getFavoriteByStationIdService(station?.id);
 
         const available_fuel = await getAvailableFuelTypeByStationIdService(station.id);
 
       geminiSations.push({
         id: station?.id,
-        rating: averageRate,
-        isFavorite: favoritesStationIds.includes(station.id),
+        rating : (averageRate == null) ? 0 : averageRate,
+        favorites_user: favorites.length,
         availability:totalMilliseconds
       });
     }
     
+    
 
-    const suggestion = await geminiSuggestStationsForNearStations(geminiSations);
+    const suggestion = await geminiCategorizeAndSuggestStations(geminiSations);
     const cleaned = suggestion.replace(/```json|```/g, '').trim();
     
     let parsedSuggestion;
@@ -453,62 +455,22 @@ export const getStationsReports = async (req, res, next) => {
         console.error("Failed to parse suggestion:", error);
         parsedSuggestion = {};
         }
-        const suggestedStationIds = Object.values(parsedSuggestion).filter(Boolean);
-        let count = 1;
-        const suggestedStations = [];
-        for (const key in parsedSuggestion) {
-          const value = parsedSuggestion[key];
-          if (value) {
-            const averageRateRaw = await getAverageRateByStationIdService(parsedSuggestion[key]);
-            const averageRate = averageRateRaw !== null 
-                ? parseFloat(parseFloat(averageRateRaw).toFixed(2)) 
-                : null;
+        const ReportedStations = [];
+        for (const station of parsedSuggestion.stations) {
+          const match = stations.find(s => s.id === station.stationId);
 
-            const available_fuel = await getAvailableFuelTypeByStationIdService(parsedSuggestion[key]);
-            suggestedStations.push({
-                rank:key,
-                id:parsedSuggestion[key],
-                name:nearStations.find(station=>station.id==parsedSuggestion[key]).en_name,
-                averageRate:averageRate,
-                available_fuel:available_fuel,
-                isFavorite: favoritesStationIds.includes(parsedSuggestion[key]),
-                suggestion:true,
-                latitude:nearStations.find(station=>station.id==parsedSuggestion[key]).latitude,
-                longitude:nearStations.find(station=>station.id==parsedSuggestion[key]).longitude,
-                distance:nearStations.find(station=>station.id==parsedSuggestion[key]).distance
-            })
-            count++;
+          if (match) {
+            station.name = match.en_name;
+            station.tinNumber = match.tin_number;
+          } else {
+            station.name = "Unknown";
+            station.tinNumber = "Unknown";
           }
-        }
-    
         
-        for (const station of nearStations) {
-          if(!suggestedStationIds.includes(station.id)){
-          const averageRateRaw = await getAverageRateByStationIdService(station.id);
-          const averageRate = averageRateRaw !== null 
-            ? parseFloat(parseFloat(averageRateRaw).toFixed(2)) 
-            : null;
-    
-          const available_fuel = await getAvailableFuelTypeByStationIdService(station.id);
-    
-          suggestedStations.push({
-            rank:count.toString(),
-            id:station.id,
-            name: station.en_name,
-            rating: averageRate,
-            averageRate:averageRate,
-            available_fuel:available_fuel,
-            isFavorite:favoritesStationIds.includes(station.id),
-            suggestion:false,
-            latitude:station.latitude,
-            longitude:station.longitude,
-            distance:station.distance
-          });
-          count ++;
+          ReportedStations.push(station);
         }
-        }
+        return handleResponse(res, 200, "reported stations retrieved successfully", ReportedStations);
 
-    return handleResponse(res, 200, "Nearby stations retrieved successfully", suggestedStations);
   } catch (err) {
     next(err);
   }
