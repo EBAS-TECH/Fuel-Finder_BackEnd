@@ -54,6 +54,13 @@ export const getFavoriteByUserIdAndStationIdService = async (user_id, station_id
   return result.rows[0];
 };
 
+export const getFavoriteByStationIdService = async (station_id) => {
+  const result = await pool.query(
+    `SELECT * FROM favorites WHERE station_id = $1`,
+    [station_id]
+  );
+  return result.rows;
+};
 // Delete favorite by id
 export const deleteFavoriteByIdService = async (id) => {
   const result = await pool.query(
