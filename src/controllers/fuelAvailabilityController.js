@@ -185,10 +185,10 @@ const handleResponse = (res, status, message, data = null) => {
           
             try {
               const fuelAvailability = await getLastFuelAvailabilityByStationAndFuelTypeService(id,fuel_type,);
-          console.log(fuelAvailability)
-              if (fuelAvailability.length === 0) {
-                return handleResponse(res, 404, "No fuel availability found for the specified fuel type and availability status", null);
+          if(!fuelAvailability){
+                return handleResponse(res, 200, "No fuel availability found for the specified fuel type and availability status", false);
               }
+            
           
               handleResponse(res, 200, "Fuel availability retrieved successfully", fuelAvailability.available);
             } catch (err) {
