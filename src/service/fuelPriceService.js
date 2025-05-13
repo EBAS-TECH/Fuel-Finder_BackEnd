@@ -2,15 +2,12 @@ import pool from "../config/db.js";
 import { v4 as uuidv4 } from "uuid";
 
 
-export const createOrUpdateFuelPriceService = async (fuel_type, price) => {
+export const createFuelPriceService = async (fuel_type, price,end_date) => {
     const id = uuidv4();
     const result = await pool.query(
-      `INSERT INTO fuel_prices (id, fuel_type, price)
-       VALUES ($1, $2, $3)
-       ON CONFLICT (fuel_type) DO UPDATE 
-       SET price = EXCLUDED.price, updated_at = NOW()
-       RETURNING *`,
-      [id, fuel_type, price]
+      `INSERT INTO fuel_prices (id, fuel_type, price,updated_at)
+       VALUES ($1, $2, $3,$4)`,
+      [id, fuel_type, price,end_date]
     );
     return result.rows[0];
   };
@@ -28,13 +25,13 @@ export const createOrUpdateFuelPriceService = async (fuel_type, price) => {
   };
 
   
-  export const updateFuelPriceService = async (fuel_type, price) => {
+  export const updateFuelPriceService = async (fuel_type, price,end_date) => {
     const result = await pool.query(
       `UPDATE fuel_prices 
-       SET price = $1, updated_at = NOW()
+       SET price = $1,created_at=NOW(), updated_at =$3
        WHERE fuel_type = $2
        RETURNING *`,
-      [price, fuel_type]
+      [price, fuel_type,end_date]
     );
     return result.rows[0];
   };

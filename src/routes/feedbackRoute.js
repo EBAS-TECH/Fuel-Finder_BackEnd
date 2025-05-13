@@ -7,6 +7,7 @@ const router = express.Router();
 
 
 router.post("/", protectRoute, createFeedback);
+router.get("/",getAllFeedback)
 router.get("/rate", protectRoute, getRateNumberByUserId);
 router.get("/station/:station_id/user/:user_id", protectRoute, getFeedbackByUserIdAndStationIdController);
 router.get("/station/:station_id", protectRoute, getFeedbackByStationId);

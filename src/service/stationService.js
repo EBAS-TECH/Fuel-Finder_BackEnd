@@ -138,3 +138,9 @@ export const deleteStationByIdService = async (id) => {
     const result = await pool.query(query, [longitude, latitude, radius, limit]);
     return result.rows;
   };
+  export const getListStationIdService = async () => {
+    const result = await pool.query(
+      `SELECT id FROM stations ORDER BY created_at DESC`
+    );
+    return result.rows.map(row => row.id);
+  };

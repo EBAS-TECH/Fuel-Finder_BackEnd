@@ -4,7 +4,7 @@ import protectRoute from "../middlewares/protectRoute.js";
 
 import authorizeRoles from "../middlewares/authorizeRole.js";
 import {
-  createOrUpdateFuelPrice,
+  createFuelPrice,
   deleteFuelPriceByType,
   getAllFuelPrices,
   getFuelPriceByType,
@@ -14,12 +14,7 @@ import {
 const router = express.Router();
 
 // Create a new fuel price
-router.post(
-  "/",
-  protectRoute,
-  authorizeRoles("MINISTRY_DELEGATE", "ADMIN"),
-  createOrUpdateFuelPrice
-);
+router.post("/",protectRoute,authorizeRoles("MINISTRY_DELEGATE", "ADMIN"),createFuelPrice);
 
 // Get all fuel price
 router.get("/", protectRoute, getAllFuelPrices);
@@ -28,20 +23,10 @@ router.get("/", protectRoute, getAllFuelPrices);
 router.get("/:fuel_type", protectRoute, getFuelPriceByType);
 
 // Update a fuel price by fuel type
-router.put(
-  "/:fuel_type",
-  protectRoute,
-  authorizeRoles("MINISTRY_DELEGATE", "ADMIN"),
-  updateFuelPrice
-);
+router.put("/:fuel_type",protectRoute,authorizeRoles("MINISTRY_DELEGATE", "ADMIN"),updateFuelPrice);
 
 // Delete a fuel price by fuel type
-router.delete(
-  "/:fuel_type",
-  protectRoute,
-  authorizeRoles("MINISTRY_DELEGATE", "ADMIN"),
-  deleteFuelPriceByType
-);
+router.delete("/:fuel_type",protectRoute,authorizeRoles("MINISTRY_DELEGATE", "ADMIN"),deleteFuelPriceByType);
 
 export default router;
 

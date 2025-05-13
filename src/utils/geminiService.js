@@ -1,8 +1,9 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
+
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-async function geminiSuggestStations(inputData) {
+export const geminiSuggestStationsForNearStations = async (inputData) => {
   const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
   const prompt = `
@@ -28,12 +29,10 @@ Please return ONLY the top 3 recommended stations id in the following format:
 
   try {
     const result = await model.generateContent(prompt);
-    const text = result.response.text(); // Ensure `response` exists
+    const text = result.response.text();
     return text;
   } catch (error) {
     console.error("Gemini Suggestion Error:", error);
     throw error;
   }
-}
-
-export default geminiSuggestStations;
+};

@@ -1,20 +1,24 @@
 import {
-    createOrUpdateFuelPriceService,
     getAllFuelPricesService,
     getFuelPriceByTypeService,
     updateFuelPriceService,
     deleteFuelPriceByTypeService,
+    createFuelPriceService,
   } from "../service/fuelPriceService.js";
   
-  export const createOrUpdateFuelPrice = async (req, res) => {
+  export const createFuelPrice = async (req, res) => {
     try {
-      const { fuel_type, price } = req.body;
-  
+      const { fuel_type, price,end_date } = req.body;
       if (!fuel_type || !price) {
         return res.status(400).json({ success: false, message: "fuel_type and price are required" });
       }
+      const oldPrice = await getFuelPriceByTypeService(fuel_type);
+      if(oldPrice){
+       
+        return res.status(400).json({message:"fuel price already exist"})
+      }
   
-      const fuelPrice = await createOrUpdateFuelPriceService(fuel_type, price);
+      const fuelPrice = await createFuelPriceService(fuel_type, price,end_date);
       res.status(201).json({ success: true, data: fuelPrice });
     } catch (error) {
       res.status(500).json({ success: false, message: "Failed to create or update fuel price", error });
@@ -51,9 +55,9 @@ import {
   export const updateFuelPrice = async (req, res) => {
     try {
       const { fuel_type } = req.params;
-      const { price } = req.body;
+      const { price ,end_date} = req.body;
   
-      const updated = await updateFuelPriceService(fuel_type, price);
+      const updated = await updateFuelPriceService(fuel_type, price,end_date);
       if (!updated) {
         return res.status(404).json({ success: false, message: "Fuel type not found" });
       }

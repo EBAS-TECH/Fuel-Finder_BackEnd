@@ -303,7 +303,9 @@ export const forgotPassWord = async (req, res) => {
   
       await updateNewPasswordService(user_id, hashedPassword); // Update the user's password
       // Send confirmation email
-      await sendForgotSuccessfullEmail(user.email, user.username);
+      await sendForgotSuc
+      
+      cessfullEmail(user.email, user.username);
   
       return res.status(200).json({
         message: "Password changed successfully",

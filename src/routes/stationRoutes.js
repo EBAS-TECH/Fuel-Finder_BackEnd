@@ -3,9 +3,10 @@ import { createStation,
      deleteStationById,
      getAllStations, 
      getAllStationsByStatus, 
-     getNearByStationsService, 
+     getNearByStations, 
      getStationById, 
      getStationByUserId, 
+     getStationsReports, 
      validateTin, 
      verifyStationById } from "../controllers/stationController.js";
 import protectRoute from "../middlewares/protectRoute.js";
@@ -19,9 +20,10 @@ router.get('/status/:status',protectRoute,authorizeRoles('ADMIN','MINISTRY_DELEG
 router.get('/:id',protectRoute,getStationById)
 router.delete('/:id',protectRoute,authorizeRoles('ADMIN'),deleteStationById)
 router.put('/verify-station/:id',protectRoute,authorizeRoles('ADMIN'),verifyStationById)
-router.post('/near-station',protectRoute,getNearByStationsService)
+router.post('/near-station',protectRoute,getNearByStations)
 router.get('/validate-tin/:tinNumber', validateTin);
-router.get('/user/:user_id',protectRoute,getStationByUserId)
+router.get('/user/:user_id',protectRoute,getStationByUserId);
+router.get('/report/ministry',protectRoute,authorizeRoles('ADMIN','MINISTRY_DELEGATE'),getStationsReports)
 
 
 export default router;
