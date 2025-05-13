@@ -458,7 +458,7 @@ export const getStationsReports = async (req, res, next) => {
         const ReportedStations = [];
         for (const station of parsedSuggestion.stations) {
           const match = stations.find(s => s.id === station.stationId);
-        console.log(match)
+
           if (match) {
             station.name = match.en_name;
             station.tinNumber = match.tin_number;
@@ -470,6 +470,7 @@ export const getStationsReports = async (req, res, next) => {
           ReportedStations.push(station);
         }
         return handleResponse(res, 200, "reported stations retrieved successfully", ReportedStations);
+
   } catch (err) {
     next(err);
   }
