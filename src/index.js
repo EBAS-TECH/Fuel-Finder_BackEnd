@@ -12,6 +12,7 @@ import favoriteRoutes from "./routes/favoriteRoute.js"
 import fuelPriceRoutes from "./routes/fuelPriceRoutes.js"
 import errorHandling from "./middlewares/errorHandler.js";
 import setupDatabase  from "./data/setupDatabase.js";
+import { swaggerSpec, swaggerUi } from "./utils/docs/swagger.js";
 
 dotenv.config();
 
@@ -38,6 +39,7 @@ app.use("/api/availability",fuelAvailabilityRoutes)
 app.use("/api/feedback",feedbackRoutes)
 app.use("/api/favorite",favoriteRoutes)
 app.use("/api/price",fuelPriceRoutes)
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Error handling middleware
 app.use(errorHandling)
