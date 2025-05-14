@@ -1,4 +1,4 @@
-import { sendForgotPasswordEmail, sendVerificationEmail, sendWelcomeEmail } from "../utils/emailNotification/emails.js";
+import { sendForgotPasswordEmail, sendForgotSuccessfullEmail, sendVerificationEmail, sendWelcomeEmail } from "../utils/emailNotification/emails.js";
 import { createEmailVerificationService, forgotPasswordByEmailService, getEmailVerificationByIdService, resendEmailVerificationByUserIdService, updateEmailVerificationByUserIdService } from "../service/emailVerificationService.js";
 import  { createUserService, deleteUserService, getUserByEmailService, getUserByIdService, getUserByUsernameService, updateNewPasswordService, verifyUserByIdService } from "../service/userService.js";
 import bcrypt from "bcryptjs";
@@ -303,9 +303,7 @@ export const forgotPassWord = async (req, res) => {
   
       await updateNewPasswordService(user_id, hashedPassword); // Update the user's password
       // Send confirmation email
-      await sendForgotSuc
-      
-      cessfullEmail(user.email, user.username);
+      await sendForgotSuccessfullEmail(user.email, user.username);
   
       return res.status(200).json({
         message: "Password changed successfully",

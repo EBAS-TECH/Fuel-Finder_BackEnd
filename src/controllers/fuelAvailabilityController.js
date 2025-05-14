@@ -40,6 +40,7 @@ const handleResponse = (res, status, message, data = null) => {
         station.id,
         fuel_type,
       );
+      fuelAvailability.available=true;
   
       return res.status(201).json({ message: "Fuel availability on successfully", data: fuelAvailability });
     } catch (error) {
