@@ -91,7 +91,6 @@ export const login = async (req, res) => {
         }
         // Respond with user data (update field names based on your table)
         const { password, ...userWithoutPassword } = user;
-        userWithoutPassword.verified = false
         if(!user?.verified){
           return res.status(200).json({
             message: "user email not verified",
