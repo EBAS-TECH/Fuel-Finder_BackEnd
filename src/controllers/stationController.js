@@ -445,14 +445,13 @@ export const getStationsReports = async (req, res, next) => {
       }, 0);
       
       const averageRateRaw = await getAverageRateByStationIdService(station.id);
-      const averageRate = averageRateRaw !== null 
-        ? parseFloat(parseFloat(averageRateRaw).toFixed(2)) 
-        : null;
-      
+     const averageRate = averageRateRaw !== null 
+  ? parseFloat(Number(averageRateRaw).toFixed(2)) 
+  : null;
+
         const favorites = await getFavoriteByStationIdService(station?.id);
 
         const available_fuel = await getAvailableFuelTypeByStationIdService(station.id);
-
       geminiSations.push({
         id: station?.id,
         rating : (averageRate == null) ? 0 : averageRate,
@@ -460,8 +459,7 @@ export const getStationsReports = async (req, res, next) => {
         availability:totalMilliseconds
       });
     }
-    
-    
+  
 
     const suggestion = await geminiCategorizeAndSuggestStations(geminiSations);
     const cleaned = suggestion.replace(/```json|```/g, '').trim();
@@ -476,19 +474,7 @@ export const getStationsReports = async (req, res, next) => {
         const ReportedStations = [];
         for (const station of parsedSuggestion.stations) {
           const match = stations.find(s => s.id === station.stationId);
-
-          console.log("heyyyyyyy",new Date(start_date).toISOString(),
-          new Date(end_date).toISOString(),)
-          const availability = await getAllAvailabilityHours(
-            new Date(start_date).toISOString(),
-            new Date(end_date).toISOString(),
-            station.id
-          );
-
-          const averageRateRaw = await getAverageRateByStationIdService(station.id);
-      const averageRate = averageRateRaw !== null 
-        ? parseFloat(parseFloat(averageRateRaw).toFixed(2)) 
-        : 0;
+          
 
           if (match) {
             station.name = match.en_name;
@@ -498,8 +484,22 @@ export const getStationsReports = async (req, res, next) => {
             station.tinNumber = "Unknown";
           }
           
+          const availability = await getAllAvailabilityHours(
+            new Date(start_date).toISOString(),
+            new Date(end_date).toISOString(),
+            station.stationId
+          );
+          const totalHours = availability.reduce((sum, item) => {
+            return sum + parseFloat(item.total_milliseconds);
+          }, 0) / (1000 * 60 * 60);
+          const averageRateRaw = await getAverageRateByStationIdService(station.stationId);
+      const averageRate = averageRateRaw !== null 
+        ? parseFloat(parseFloat(averageRateRaw).toFixed(2)) 
+        : 0;
+          
+          
         station.rating = averageRate;
-        station.availaleHour = availability
+        station.availaleHour = totalHours
           ReportedStations.push(station);
         }
         return handleResponse(res, 200, "reported stations retrieved successfully", ReportedStations);
