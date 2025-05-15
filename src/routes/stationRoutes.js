@@ -7,6 +7,7 @@ import { createStation,
      getStationById, 
      getStationByUserId, 
      getStationsReports, 
+     updateStationById, 
      validateTin, 
      verifyStationById } from "../controllers/stationController.js";
 import protectRoute from "../middlewares/protectRoute.js";
@@ -23,7 +24,8 @@ router.put('/verify-station/:id',protectRoute,authorizeRoles('ADMIN'),verifyStat
 router.post('/near-station',protectRoute,getNearByStations)
 router.get('/validate-tin/:tinNumber', validateTin);
 router.get('/user/:user_id',protectRoute,getStationByUserId);
-router.get('/report/ministry',protectRoute,authorizeRoles('ADMIN','MINISTRY_DELEGATE'),getStationsReports)
+router.post('/report/ministry',protectRoute,authorizeRoles('ADMIN','MINISTRY_DELEGATE'),getStationsReports)
+router.put('/update/:id',protectRoute,authorizeRoles('ADMIN'),updateStationById)
 
 
 export default router;

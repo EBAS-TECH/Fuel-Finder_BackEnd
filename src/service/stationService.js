@@ -96,21 +96,33 @@ export const deleteStationByIdService = async (id) => {
   };
 
 
-  export const updateStationByIdService = async (id, en_name, am_name, address) => {
-    const query = `
-      UPDATE stations
-      SET 
-        en_name = $1,
-        am_name = $2,
-        address = $3,
-        updated_at = NOW()
-      WHERE id = $4
-      RETURNING *
-    `;
+  export const updateStationByIdService = async (
+    id,
+    en_name,
+    am_name,
+    tin_number,
+    user_id,
+    latitude,
+    longitude,
+    address
+  ) => {
+    const result = await pool.query(
+      `UPDATE stations
+       SET en_name = $1,
+           am_name = $2,
+           tin_number = $3,
+           user_id = $4,
+           location = ST_SetSRID(ST_MakePoint($5, $6), 4326),
+           address = $7,
+           updated_at = NOW()
+       WHERE id = $8
+       RETURNING id, en_name, am_name, tin_number, user_id, ST_X(location) AS longitude, ST_Y(location) AS latitude, address, availability, status, created_at, updated_at`,
+      [en_name, am_name, tin_number, user_id, longitude, latitude, address, id]
+    );
   
-    const result = await pool.query(query, [en_name, am_name, address, id]);
-    return result.rows[0]; // returns the updated station, or undefined if not found
+    return result.rows[0];
   };
+  
 
   export const changeAvailabilityStationByIdService = async (id, bool) => {
     const query = `

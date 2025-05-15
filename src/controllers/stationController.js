@@ -8,7 +8,7 @@ import { changeAvailabilityStationByIdService, createStationService,
     getStationByUserIdService, 
     updateStationByIdService, 
     verifyStationByIdService } from "../service/stationService.js";
-import { createUserService, deleteUserService, getUserByUsernameService } from "../service/userService.js";
+import { createUserService, deleteUserService, getUserByEmailService, getUserByIdService, getUserByUsernameService, updateUserWithEmailService } from "../service/userService.js";
 import { validate as isUUID } from "uuid";
 import bcrypt from "bcryptjs";
 import axios from 'axios';
@@ -18,6 +18,7 @@ import { geminiCategorizeAndSuggestStations, geminiSuggestStationsForNearStation
 import { deleteFeedbacksByStationIdService, getAverageRateByStationIdService } from "../service/feedbackService.js";
 import { deleteFavoritesByStationIdService, getFavoriteByStationIdService, getListFavoritesByUserIdService } from "../service/favoriteService.js";
 import { deleteFuelAvailabilityByStaionIdService, getAllAvailabilityHours, getAvailableFuelTypeByStationIdService } from "../service/fuelAvailabilityService.js";
+import { getUserById, updateUserById } from "./userController.js";
 
 
 // Standardized response function
@@ -203,20 +204,36 @@ export const getAllStationsByStatus = async (req, res, next) => {
       next(err);
     }
   };
+  
 
   export const updateStationById = async (req, res, next) => {
     if (!isUUID(req.params.id)) {
         return res.status(400).json({ error: "Invalid token payload: userId is not a valid UUID" });
       }
     const { id } = req.params;
-    const { en_name, am_name, address } = req.body;
+    const { en_name, am_name, address, tin_number,user_id,latitude,longitude, } = req.body;
+    const { first_name, last_name, username, password, email } = req.body.user;
   
     try {
-      const updatedStation = await updateStationByIdService(id, en_name, am_name, address);
-  
+      const station = await getStationByIdService(id);
+      if(station.user_id != user_id){
+        return res.status(400).json({ error: "user id is not exist" });
+      }
+      const user1 = await getUserByEmailService(email);
+    if (user1 && user1.email != email) {
+      return res.status(400).json({ error: "email already exists" });
+       }
+       const user2 = await getUserByUsernameService(username);
+    if (user2 && user2.username != username) {
+      return res.status(400).json({ error: "Username already exists" });
+    }
+    const newUser = await updateUserWithEmailService(user_id,first_name,last_name,username,email)
+    const updatedStation = await updateStationByIdService(id,en_name,am_name,tin_number,user_id,latitude,longitude,address);  
+    // const user 
       if (!updatedStation) {
         return handleResponse(res, 404, "Station not found", null);
       }
+      updatedStation.user=newUser
   
       handleResponse(res, 200, "Station updated successfully", updatedStation);
     } catch (err) {
@@ -409,6 +426,7 @@ export const getStationsReports = async (req, res, next) => {
     const user_id = req.user.id;
 
     const stationIds = await getListStationIdService();
+    const {start_date,end_date}=req.body;
     
     const geminiSations = [];
     const stations = await getAllStationsService();
@@ -418,8 +436,8 @@ export const getStationsReports = async (req, res, next) => {
       thirtyDaysAgo.setDate(now.getDate() - 30);
      
       const availability = await getAllAvailabilityHours(
-        thirtyDaysAgo.toISOString(),
-        now.toISOString(),
+        new Date(start_date).toISOString(),
+        new Date(end_date).toISOString(),
         station.id
       );
       const totalMilliseconds = availability.reduce((sum, item) => {
@@ -459,6 +477,19 @@ export const getStationsReports = async (req, res, next) => {
         for (const station of parsedSuggestion.stations) {
           const match = stations.find(s => s.id === station.stationId);
 
+          console.log("heyyyyyyy",new Date(start_date).toISOString(),
+          new Date(end_date).toISOString(),)
+          const availability = await getAllAvailabilityHours(
+            new Date(start_date).toISOString(),
+            new Date(end_date).toISOString(),
+            station.id
+          );
+
+          const averageRateRaw = await getAverageRateByStationIdService(station.id);
+      const averageRate = averageRateRaw !== null 
+        ? parseFloat(parseFloat(averageRateRaw).toFixed(2)) 
+        : 0;
+
           if (match) {
             station.name = match.en_name;
             station.tinNumber = match.tin_number;
@@ -466,7 +497,9 @@ export const getStationsReports = async (req, res, next) => {
             station.name = "Unknown";
             station.tinNumber = "Unknown";
           }
-        
+          
+        station.rating = averageRate;
+        station.availaleHour = availability
           ReportedStations.push(station);
         }
         return handleResponse(res, 200, "reported stations retrieved successfully", ReportedStations);
