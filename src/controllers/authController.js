@@ -86,15 +86,25 @@ export const login = async (req, res) => {
         // Check if user exists and password is correct
         const isPasswordCorrect = await bcrypt.compare(req.body.password, user?.password || "");
 
-        if (!user || !isPasswordCorrect || !user?.verified) {
+        if (!user || !isPasswordCorrect  ) {
             return res.status(400).json({ error: "Username or password not correct" });
+        }
+        // Respond with user data (update field names based on your table)
+        const { password, ...userWithoutPassword } = user;
+        userWithoutPassword.verified = false
+        if(!user?.verified){
+          return res.status(200).json({
+            message: "user email not verified",
+            user: {
+              ...userWithoutPassword
+            }
+          });
         }
 
         // Set JWT cookie
         const token = generateToken(user.id);
 
-        // Respond with user data (update field names based on your table)
-        const { password, ...userWithoutPassword } = user;
+        
         if(user.role === 'GAS_STATION'){
           const station = await getStationByUserIdService(user.id);
           if(station?.status == "VERIFIED"){
