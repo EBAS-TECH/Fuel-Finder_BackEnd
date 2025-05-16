@@ -12,7 +12,8 @@ import favoriteRoutes from "./routes/favoriteRoute.js"
 import fuelPriceRoutes from "./routes/fuelPriceRoutes.js"
 import errorHandling from "./middlewares/errorHandler.js";
 import setupDatabase  from "./data/setupDatabase.js";
-import { swaggerSpec, swaggerUi } from "./utils/docs/swagger.js";
+import { swaggerDocument, swaggerUi, swaggerUiSetup } from "./utils/docs/swagger.js";
+import basicAuth from 'express-basic-auth';
 
 dotenv.config();
 
@@ -39,10 +40,17 @@ app.use("/api/availability",fuelAvailabilityRoutes)
 app.use("/api/feedback",feedbackRoutes)
 app.use("/api/favorite",favoriteRoutes)
 app.use("/api/price",fuelPriceRoutes)
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.use('/api-docs', basicAuth({
+    users: { 'admin': 'password123' },
+    challenge: true
+  }), swaggerUi.serve, swaggerUiSetup);
 
 // Error handling middleware
 app.use(errorHandling)
+
+
+// Serve static files
+app.use('/public', express.static('public'));
 
 setupDatabase();
 
