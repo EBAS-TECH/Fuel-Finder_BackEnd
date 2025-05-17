@@ -345,7 +345,8 @@ export const getAllStationsByStatus = async (req, res, next) => {
                   suggestion:true,
                   latitude:nearStations.find(station=>station.id==parsedSuggestion[key]).latitude,
                   longitude:nearStations.find(station=>station.id==parsedSuggestion[key]).longitude,
-                  distance:nearStations.find(station=>station.id==parsedSuggestion[key]).distance
+                  distance:nearStations.find(station=>station.id==parsedSuggestion[key]).distance,
+                  logo:nearStations.find(station=>station.id==parsedSuggestion[key]).logo
               })
               count++;
             }
