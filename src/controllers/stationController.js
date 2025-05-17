@@ -45,6 +45,7 @@ const handleResponse = (res, status, message, data = null) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
     const defaultProfilePic = profile_pic || `https://avatar.iran.liara.run/public/boy?username=${username}`;
+    const logo = "https://img.icons8.com/color/96/gas-pump.png";
     const verificationToken = Math.floor(100000+Math.random()*900000).toString();
     try {
       // Create the user
@@ -66,7 +67,8 @@ const handleResponse = (res, status, message, data = null) => {
         newUser.id,  // Now `newUser.id` is used as user reference
         latitude,
         longitude,
-        address
+        address,
+        logo
       );
       const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
       await createEmailVerificationService(
@@ -274,7 +276,6 @@ export const getAllStationsByStatus = async (req, res, next) => {
       const favoritesStationIds = await getListFavoritesByUserIdService(user_id);
   
       const nearStations = await getNearbyStationsService(latitude, longitude, radius, limit);
-      // console.log(nearStations)
       if (nearStations.length === 0) {
         return handleResponse(res, 200, "No nearby stations found", nearStations);
       }
@@ -359,7 +360,7 @@ export const getAllStationsByStatus = async (req, res, next) => {
               : null;
       
             const available_fuel = await getAvailableFuelTypeByStationIdService(station.id);
-      
+      console.log(station.logo)
             suggestedStations.push({
               rank:count.toString(),
               id:station.id,

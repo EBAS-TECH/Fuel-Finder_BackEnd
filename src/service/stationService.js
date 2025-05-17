@@ -1,15 +1,15 @@
 import { v4 as uuidv4 } from "uuid";
 import pool from "../config/db.js"; // Adjust this based on your structure
 
-export const createStationService = async (en_name, am_name,tin_number, user_id, latitude, longitude, address) => {
+export const createStationService = async (en_name, am_name,tin_number, user_id, latitude, longitude, address,logo) => {
     const id = uuidv4();
     const result = await pool.query(
       `INSERT INTO stations (
-        id, en_name, am_name,tin_number,user_id, location, address
+        id, en_name, am_name,tin_number,user_id, location, address,logo
       ) VALUES (
-        $1, $2, $3, $4,$5, ST_SetSRID(ST_MakePoint($6, $7), 4326), $8
+        $1, $2, $3, $4,$5, ST_SetSRID(ST_MakePoint($6, $7), 4326), $8,$9
       ) RETURNING id, en_name, am_name,tin_number, user_id, ST_X(location) AS longitude, ST_Y(location) AS latitude, address, availability,status,logo, created_at, updated_at`,
-      [id, en_name, am_name, tin_number,user_id, longitude, latitude, address]
+      [id, en_name, am_name, tin_number,user_id, longitude, latitude, address,logo]
     );
     return result.rows[0];
   };
@@ -143,7 +143,7 @@ export const deleteStationByIdService = async (id) => {
     const query = `
       SELECT id, en_name, am_name, address,
              ST_Distance(location, ST_SetSRID(ST_MakePoint($1, $2), 4326)) AS distance,
-             ST_X(location) AS longitude, ST_Y(location) AS latitude
+             ST_X(location) AS longitude, ST_Y(location) AS latitude,logo
       FROM stations
       WHERE ST_DWithin(location, ST_SetSRID(ST_MakePoint($1, $2), 4326), $3)
       ORDER BY distance
