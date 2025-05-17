@@ -211,7 +211,7 @@ export const getAllStationsByStatus = async (req, res, next) => {
         return res.status(400).json({ error: "Invalid token payload: userId is not a valid UUID" });
       }
     const { id } = req.params;
-    const { en_name, am_name, address, tin_number,user_id,latitude,longitude, } = req.body;
+    const { en_name, am_name, address, tin_number,user_id,latitude,longitude,logo } = req.body;
     const { first_name, last_name, username, password, email } = req.body.user;
   
     try {
@@ -228,7 +228,7 @@ export const getAllStationsByStatus = async (req, res, next) => {
       return res.status(400).json({ error: "Username already exists" });
     }
     const newUser = await updateUserWithEmailService(user_id,first_name,last_name,username,email)
-    const updatedStation = await updateStationByIdService(id,en_name,am_name,tin_number,user_id,latitude,longitude,address);  
+    const updatedStation = await updateStationByIdService(id,en_name,am_name,tin_number,user_id,latitude,longitude,address,logo);  
     // const user 
       if (!updatedStation) {
         return handleResponse(res, 404, "Station not found", null);
@@ -371,7 +371,8 @@ export const getAllStationsByStatus = async (req, res, next) => {
               suggestion:false,
               latitude:station.latitude,
               longitude:station.longitude,
-              distance:station.distance
+              distance:station.distance,
+              logo:station.logo
             });
             count ++;
           }
@@ -477,8 +478,6 @@ export const getStationsReports = async (req, res, next) => {
         for (const station of parsedSuggestion.stations) {
           const match = stations.find(s => s.id === station.stationId);
 
-          console.log("heyyyyyyy",new Date(start_date).toISOString(),
-          new Date(end_date).toISOString(),)
           const availability = await getAllAvailabilityHours(
             new Date(start_date).toISOString(),
             new Date(end_date).toISOString(),
@@ -493,6 +492,7 @@ export const getStationsReports = async (req, res, next) => {
           if (match) {
             station.name = match.en_name;
             station.tinNumber = match.tin_number;
+            station.logo = match.logo;
           } else {
             station.name = "Unknown";
             station.tinNumber = "Unknown";

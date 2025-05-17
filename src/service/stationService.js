@@ -8,7 +8,7 @@ export const createStationService = async (en_name, am_name,tin_number, user_id,
         id, en_name, am_name,tin_number,user_id, location, address
       ) VALUES (
         $1, $2, $3, $4,$5, ST_SetSRID(ST_MakePoint($6, $7), 4326), $8
-      ) RETURNING id, en_name, am_name,tin_number, user_id, ST_X(location) AS longitude, ST_Y(location) AS latitude, address, availability,status, created_at, updated_at`,
+      ) RETURNING id, en_name, am_name,tin_number, user_id, ST_X(location) AS longitude, ST_Y(location) AS latitude, address, availability,status,logo, created_at, updated_at`,
       [id, en_name, am_name, tin_number,user_id, longitude, latitude, address]
     );
     return result.rows[0];
@@ -17,7 +17,7 @@ export const createStationService = async (en_name, am_name,tin_number, user_id,
 export const getAllStationsService = async () => {
     const result = await pool.query(`
       SELECT 
-        id,en_name,am_name,tin_number,user_id,address,availability,status,created_at,updated_at,
+        id,en_name,am_name,tin_number,user_id,address,availability,status,logo,created_at,updated_at,
         ST_Y(location::geometry) AS latitude,
         ST_X(location::geometry) AS longitude
       FROM stations
@@ -29,7 +29,7 @@ export const getAllStationsService = async () => {
     const result = await pool.query(
       `
       SELECT 
-        id, en_name, am_name, tin_number, user_id, address, availability, status, created_at, updated_at,
+        id, en_name, am_name, tin_number, user_id, address, availability, status,logo, created_at, updated_at,
         ST_Y(location::geometry) AS latitude,
         ST_X(location::geometry) AS longitude
       FROM stations
@@ -45,7 +45,7 @@ export const getAllStationsService = async () => {
 export const getStationByIdService = async (id) => {
     const query = `
       SELECT 
-        id,en_name,am_name,tin_number,user_id,address,availability,status,created_at,updated_at,
+        id,en_name,am_name,tin_number,user_id,address,availability,status,logo,created_at,updated_at,
         ST_Y(location::geometry) AS latitude,
         ST_X(location::geometry) AS longitude
       FROM stations
@@ -59,7 +59,7 @@ export const getStationByIdService = async (id) => {
   export const getStationByUserIdService = async (user_id) => {
     const query = `
       SELECT 
-        id,en_name,am_name,tin_number,user_id,address,availability,status,created_at,updated_at,
+        id,en_name,am_name,tin_number,user_id,address,availability,status,logo,created_at,updated_at,
         ST_Y(location::geometry) AS latitude,
         ST_X(location::geometry) AS longitude
       FROM stations
@@ -104,7 +104,8 @@ export const deleteStationByIdService = async (id) => {
     user_id,
     latitude,
     longitude,
-    address
+    address,
+    logo,
   ) => {
     const result = await pool.query(
       `UPDATE stations
@@ -114,10 +115,11 @@ export const deleteStationByIdService = async (id) => {
            user_id = $4,
            location = ST_SetSRID(ST_MakePoint($5, $6), 4326),
            address = $7,
+           logo=$8
            updated_at = NOW()
-       WHERE id = $8
+       WHERE id = $9
        RETURNING id, en_name, am_name, tin_number, user_id, ST_X(location) AS longitude, ST_Y(location) AS latitude, address, availability, status, created_at, updated_at`,
-      [en_name, am_name, tin_number, user_id, longitude, latitude, address, id]
+      [en_name, am_name, tin_number, user_id, longitude, latitude, address,logo, id]
     );
   
     return result.rows[0];
