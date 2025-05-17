@@ -113,8 +113,8 @@ const createSeedUsersAndStations = async () => {
     for (const station of stations) {
       const { id, en_name, am_name, address, user_id,tin_number } = station;
       await pool.query(
-        `INSERT INTO stations (id, en_name, am_name, tin_number, user_id, location, address,status)
-         VALUES ($1, $2, $3, $4, $5, ST_GeomFromText($6, 4326), $7,$8)`,
+        `INSERT INTO stations (id, en_name, am_name, tin_number, user_id, location, address,status,logo)
+         VALUES ($1, $2, $3, $4, $5, ST_GeomFromText($6, 4326), $7,$8,$9)`,
         [
           id,
           en_name,
@@ -123,7 +123,8 @@ const createSeedUsersAndStations = async () => {
           user_id,
           `POINT(${38.75 + Math.random() * 0.1} ${9.03 + Math.random() * 0.1})`, // Random location
           address,
-          "VERIFIED"
+          "VERIFIED",
+          `https://img.icons8.com/color/96/gas-pump.png`,
         ]
       );
     }

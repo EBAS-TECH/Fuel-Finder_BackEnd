@@ -20,6 +20,7 @@ const createStationTable = async () => {
       address VARCHAR(255),
       availability BOOLEAN DEFAULT FALSE,
       status station_status DEFAULT 'PENDING',
+      logo VARCHAR(500),
       created_at TIMESTAMP DEFAULT NOW(),
       updated_at TIMESTAMP
 );

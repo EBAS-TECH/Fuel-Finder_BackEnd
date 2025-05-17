@@ -1,0 +1,848 @@
+    {
+        "openapi": "3.0.0",
+        "info": {
+            "title": "Fuel Finder API",
+            "version": "1.0.0",
+            "description": "API Documentation for the Fuel Finder App"
+        },
+        "servers": [
+            {
+                "url": "https://fuel-finder-backend.onrender.com"
+            }
+        ],
+        "paths": {
+            "/api/auth/signup": {
+                "post": {
+                    "summary": "User signup",
+                    "tags": [
+                        "Auth"
+                    ],
+                    "requestBody": {
+                        "required": true,
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AuthSignUpRequest"
+                                }
+                            }
+                        }
+                    },
+                    "responses": {
+                        "201": {
+                            "description": "User registered successfully"
+                        }
+                    }
+                }
+            },
+            "/api/auth/login": {
+                "post": {
+                    "summary": "User login",
+                    "tags": [
+                        "Auth"
+                    ],
+                    "requestBody": {
+                        "required": true,
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AuthLoginRequest"
+                                }
+                            }
+                        }
+                    },
+                    "responses": {
+                        "200": {
+                            "description": "Login successful"
+                        }
+                    }
+                }
+            },
+            "/api/auth/logout": {
+                "post": {
+                    "summary": "User logout",
+                    "tags": [
+                        "Auth"
+                    ],
+                    "responses": {
+                        "200": {
+                            "description": "Logout successful"
+                        }
+                    }
+                }
+            },
+            "/api/auth/verify/{id}": {
+                "put": {
+                    "summary": "Verify email",
+                    "tags": [
+                        "Auth"
+                    ],
+                    "parameters": [
+                        {
+                            "name": "id",
+                            "in": "path",
+                            "required": true,
+                            "schema": {
+                                "type": "string"
+                            }
+                        }
+                    ],
+                    "responses": {
+                        "200": {
+                            "description": "Email verified"
+                        }
+                    }
+                }
+            },
+            "/api/auth/resend/{id}": {
+                "get": {
+                    "summary": "Resend verification email",
+                    "tags": [
+                        "Auth"
+                    ],
+                    "parameters": [
+                        {
+                            "name": "id",
+                            "in": "path",
+                            "required": true,
+                            "schema": {
+                                "type": "string"
+                            }
+                        }
+                    ],
+                    "responses": {
+                        "200": {
+                            "description": "Verification email resent"
+                        }
+                    }
+                }
+            },
+            "/api/auth/forgot": {
+                "put": {
+                    "summary": "Request password reset",
+                    "tags": [
+                        "Auth"
+                    ],
+                    "requestBody": {
+                        "required": true,
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ForgotPasswordRequest"
+                                }
+                            }
+                        }
+                    },
+                    "responses": {
+                        "200": {
+                            "description": "Password reset email sent"
+                        }
+                    }
+                }
+            },
+            "/api/auth/forgot/verify/{id}": {
+                "put": {
+                    "summary": "Verify password reset code",
+                    "tags": [
+                        "Auth"
+                    ],
+                    "parameters": [
+                        {
+                            "name": "id",
+                            "in": "path",
+                            "required": true,
+                            "schema": {
+                                "type": "string"
+                            }
+                        }
+                    ],
+                    "responses": {
+                        "200": {
+                            "description": "Code verified"
+                        }
+                    }
+                }
+            },
+            "/api/auth/new-password/{id}": {
+                "put": {
+                    "summary": "Set new password",
+                    "tags": [
+                        "Auth"
+                    ],
+                    "parameters": [
+                        {
+                            "name": "id",
+                            "in": "path",
+                            "required": true,
+                            "schema": {
+                                "type": "string"
+                            }
+                        }
+                    ],
+                    "requestBody": {
+                        "required": true,
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NewPasswordRequest"
+                                }
+                            }
+                        }
+                    },
+                    "responses": {
+                        "200": {
+                            "description": "Password updated successfully"
+                        }
+                    }
+                }
+            },
+            "/api/user": {
+                "get": {
+                    "summary": "Get all users",
+                    "tags": [
+                        "Users"
+                    ],
+                    "security": [
+                        {
+                            "bearerAuth": []
+                        }
+                    ],
+                    "responses": {
+                        "200": {
+                            "description": "List of users"
+                        }
+                    }
+                },
+                "post": {
+                    "summary": "Create a new user",
+                    "tags": [
+                        "Users"
+                    ],
+                    "security": [
+                        {
+                            "bearerAuth": []
+                        }
+                    ],
+                    "requestBody": {
+                        "required": true,
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserRequest"
+                                }
+                            }
+                        }
+                    },
+                    "responses": {
+                        "201": {
+                            "description": "User created successfully"
+                        }
+                    }
+                }
+            },
+            "/api/user/{id}": {
+                "get": {
+                    "summary": "Get user by ID",
+                    "tags": [
+                        "Users"
+                    ],
+                    "security": [
+                        {
+                            "bearerAuth": []
+                        }
+                    ],
+                    "parameters": [
+                        {
+                            "name": "id",
+                            "in": "path",
+                            "required": true,
+                            "schema": {
+                                "type": "string"
+                            }
+                        }
+                    ],
+                    "responses": {
+                        "200": {
+                            "description": "User details"
+                        }
+                    }
+                },
+                "put": {
+                    "summary": "Update user by ID",
+                    "tags": [
+                        "Users"
+                    ],
+                    "security": [
+                        {
+                            "bearerAuth": []
+                        }
+                    ],
+                    "parameters": [
+                        {
+                            "name": "id",
+                            "in": "path",
+                            "required": true,
+                            "schema": {
+                                "type": "string"
+                            }
+                        }
+                    ],
+                    "requestBody": {
+                        "required": true,
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserRequest"
+                                }
+                            }
+                        }
+                    },
+                    "responses": {
+                        "200": {
+                            "description": "User updated successfully"
+                        }
+                    }
+                },
+                "delete": {
+                    "summary": "Delete user by ID",
+                    "tags": [
+                        "Users"
+                    ],
+                    "security": [
+                        {
+                            "bearerAuth": []
+                        }
+                    ],
+                    "parameters": [
+                        {
+                            "name": "id",
+                            "in": "path",
+                            "required": true,
+                            "schema": {
+                                "type": "string"
+                            }
+                        }
+                    ],
+                    "responses": {
+                        "200": {
+                            "description": "User deleted successfully"
+                        }
+                    }
+                }
+            },
+            "/api/user/profile/change-password": {
+                "put": {
+                    "summary": "Change user password",
+                    "tags": [
+                        "Users"
+                    ],
+                    "security": [
+                        {
+                            "bearerAuth": []
+                        }
+                    ],
+                    "requestBody": {
+                        "required": true,
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "oldPassword": {
+                                            "type": "string"
+                                        },
+                                        "newPassword": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "oldPassword",
+                                        "newPassword"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "responses": {
+                        "200": {
+                            "description": "Password changed successfully"
+                        }
+                    }
+                }
+            },
+            "/api/station": {
+                "get": {
+                    "summary": "Get all stations",
+                    "tags": [
+                        "Stations"
+                    ],
+                    "responses": {
+                        "200": {
+                            "description": "List of all stations"
+                        }
+                    }
+                },
+                "post": {
+                    "summary": "Create a new station",
+                    "tags": [
+                        "Stations"
+                    ],
+                    "requestBody": {
+                        "required": true,
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StationRequest"
+                                }
+                            }
+                        }
+                    },
+                    "responses": {
+                        "201": {
+                            "description": "Station created successfully"
+                        }
+                    }
+                }
+            },
+            "/api/station/status/{status}": {
+                "get": {
+                    "summary": "Get stations by status",
+                    "tags": [
+                        "Stations"
+                    ],
+                    "parameters": [
+                        {
+                            "name": "status",
+                            "in": "path",
+                            "required": true,
+                            "schema": {
+                                "type": "string"
+                            }
+                        }
+                    ],
+                    "responses": {
+                        "200": {
+                            "description": "Stations with the given status"
+                        }
+                    }
+                }
+            },
+            "/api/station/{id}": {
+                "get": {
+                    "summary": "Get a station by ID",
+                    "tags": [
+                        "Stations"
+                    ],
+                    "parameters": [
+                        {
+                            "name": "id",
+                            "in": "path",
+                            "required": true,
+                            "schema": {
+                                "type": "string"
+                            }
+                        }
+                    ],
+                    "responses": {
+                        "200": {
+                            "description": "Station details"
+                        }
+                    }
+                },
+                "delete": {
+                    "summary": "Delete a station by ID",
+                    "tags": [
+                        "Stations"
+                    ],
+                    "parameters": [
+                        {
+                            "name": "id",
+                            "in": "path",
+                            "required": true,
+                            "schema": {
+                                "type": "string"
+                            }
+                        }
+                    ],
+                    "responses": {
+                        "200": {
+                            "description": "Station deleted successfully"
+                        }
+                    }
+                }
+            },
+            "/api/station/verify-station/{id}": {
+                "put": {
+                    "summary": "Verify a station by ID",
+                    "tags": [
+                        "Stations"
+                    ],
+                    "parameters": [
+                        {
+                            "name": "id",
+                            "in": "path",
+                            "required": true,
+                            "schema": {
+                                "type": "string"
+                            }
+                        }
+                    ],
+                    "responses": {
+                        "200": {
+                            "description": "Station verified"
+                        }
+                    }
+                }
+            },
+            "/api/station/near-station": {
+                "post": {
+                    "summary": "Get nearby stations",
+                    "tags": [
+                        "Stations"
+                    ],
+                    "requestBody": {
+                        "required": true,
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "latitude": {
+                                            "type": "number"
+                                        },
+                                        "longitude": {
+                                            "type": "number"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "responses": {
+                        "200": {
+                            "description": "List of nearby stations"
+                        }
+                    }
+                }
+            },
+            "/api/station/validate-tin/{tinNumber}": {
+                "get": {
+                    "summary": "Validate station TIN number",
+                    "tags": [
+                        "Stations"
+                    ],
+                    "parameters": [
+                        {
+                            "name": "tinNumber",
+                            "in": "path",
+                            "required": true,
+                            "schema": {
+                                "type": "string"
+                            }
+                        }
+                    ],
+                    "responses": {
+                        "200": {
+                            "description": "TIN number is valid"
+                        }
+                    }
+                }
+            },
+            "/api/station/user/{user_id}": {
+                "get": {
+                    "summary": "Get station by user ID",
+                    "tags": [
+                        "Stations"
+                    ],
+                    "parameters": [
+                        {
+                            "name": "user_id",
+                            "in": "path",
+                            "required": true,
+                            "schema": {
+                                "type": "string"
+                            }
+                        }
+                    ],
+                    "responses": {
+                        "200": {
+                            "description": "Station owned by the user"
+                        }
+                    }
+                }
+            },
+            "/api/station/report/ministry": {
+                "post": {
+                    "summary": "Get ministry report of stations",
+                    "tags": [
+                        "Stations"
+                    ],
+                    "responses": {
+                        "200": {
+                            "description": "Ministry report data"
+                        }
+                    }
+                }
+            },
+            "/api/station/update/{id}": {
+                "put": {
+                    "summary": "Update a station by ID",
+                    "tags": [
+                        "Stations"
+                    ],
+                    "parameters": [
+                        {
+                            "name": "id",
+                            "in": "path",
+                            "required": true,
+                            "schema": {
+                                "type": "string"
+                            }
+                        }
+                    ],
+                    "requestBody": {
+                        "required": true,
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StationRequest"
+                                }
+                            }
+                        }
+                    },
+                    "responses": {
+                        "200": {
+                            "description": "Station updated successfully"
+                        }
+                    }
+                }
+            }
+        },
+        "components": {
+            "securitySchemes": {
+                "bearerAuth": {
+                    "type": "http",
+                    "scheme": "bearer",
+                    "bearerFormat": "JWT"
+                }
+            },
+            "schemas": {
+                "AuthSignUpRequest": {
+                    "type": "object",
+                    "properties": {
+                        "first_name": {
+                            "type": "string",
+                            "example": "John"
+                        },
+                        "last_name": {
+                            "type": "string",
+                            "example": "Doe"
+                        },
+                        "username": {
+                            "type": "string",
+                            "example": "johndoe"
+                        },
+                        "email": {
+                            "type": "string",
+                            "format": "email",
+                            "example": "john@example.com"
+                        },
+                        "password": {
+                            "type": "string",
+                            "format": "password",
+                            "example": "MyStrongPass123!"
+                        },
+                        "role": {
+                            "type": "string",
+                            "example": "OWNER",
+                            "enum": [
+                                "ADMIN",
+                                "MINISTRY",
+                                "OWNER",
+                                "WORKER"
+                            ]
+                        }
+                    },
+                    "required": [
+                        "first_name",
+                        "last_name",
+                        "username",
+                        "email",
+                        "password",
+                        "role"
+                    ]
+                },
+                "AuthLoginRequest": {
+                    "type": "object",
+                    "properties": {
+                        "username": {
+                            "type": "string",
+                            "example": "johndoe"
+                        },
+                        "password": {
+                            "type": "string",
+                            "format": "password",
+                            "example": "MyStrongPass123!"
+                        }
+                    },
+                    "required": [
+                        "username",
+                        "password"
+                    ]
+                },
+                "ForgotPasswordRequest": {
+                    "type": "object",
+                    "properties": {
+                        "email": {
+                            "type": "string",
+                            "format": "email",
+                            "example": "john@example.com"
+                        }
+                    },
+                    "required": [
+                        "email"
+                    ]
+                },
+                "NewPasswordRequest": {
+                    "type": "object",
+                    "properties": {
+                        "password": {
+                            "type": "string",
+                            "format": "password",
+                            "example": "NewSecurePassword456!"
+                        }
+                    },
+                    "required": [
+                        "password"
+                    ]
+                },
+                "StationRequest": {
+                    "type": "object",
+                    "required": [
+                        "user",
+                        "en_name",
+                        "am_name",
+                        "tin_number",
+                        "latitude",
+                        "longitude",
+                        "address"
+                    ],
+                    "properties": {
+                        "user": {
+                            "type": "object",
+                            "required": [
+                                "first_name",
+                                "last_name",
+                                "username",
+                                "password",
+                                "email",
+                                "role"
+                            ],
+                            "properties": {
+                                "first_name": {
+                                    "type": "string",
+                                    "example": "andualem"
+                                },
+                                "last_name": {
+                                    "type": "string",
+                                    "example": "tilahun"
+                                },
+                                "username": {
+                                    "type": "string",
+                                    "example": "estar"
+                                },
+                                "password": {
+                                    "type": "string",
+                                    "example": "123456"
+                                },
+                                "email": {
+                                    "type": "string",
+                                    "format": "email",
+                                    "example": "estart255@gmail.com"
+                                },
+                                "role": {
+                                    "type": "string",
+                                    "enum": [
+                                        "GAS_STATION",
+                                        "ADMIN",
+                                        "MINISTRY_DELEGATE"
+                                    ],
+                                    "example": "GAS_STATION"
+                                }
+                            }
+                        },
+                        "en_name": {
+                            "type": "string",
+                            "example": "total Station"
+                        },
+                        "am_name": {
+                            "type": "string",
+                            "example": "ቶታል ስታሽን"
+                        },
+                        "tin_number": {
+                            "type": "string",
+                            "example": "2234567890"
+                        },
+                        "latitude": {
+                            "type": "number",
+                            "format": "float",
+                            "example": 9
+                        },
+                        "longitude": {
+                            "type": "number",
+                            "format": "float",
+                            "example": 37
+                        },
+                        "address": {
+                            "type": "string",
+                            "example": "123 Main Street, Addis Ababa, Ethiopia"
+                        }
+                    }
+                },
+                "UserRequest": {
+                    "type": "object",
+                    "properties": {
+                        "first_name": {
+                            "type": "string",
+                            "example": "bereket"
+                        },
+                        "last_name": {
+                            "type": "string",
+                            "example": "Nigussie"
+                        },
+                        "username": {
+                            "type": "string",
+                            "example": "bekas"
+                        },
+                        "password": {
+                            "type": "string",
+                            "format": "password",
+                            "example": "MySecurePassword123"
+                        },
+                        "email": {
+                            "type": "string",
+                            "format": "email",
+                            "example": "solubman8@gmail.com"
+                        },
+                        "role": {
+                            "type": "string",
+                            "example": "ADMIN",
+                            "enum": [
+                                "ADMIN",
+                                "MINISTRY",
+                                "OWNER",
+                                "WORKER"
+                            ]
+                        }
+                    },
+                    "required": [
+                        "first_name",
+                        "last_name",
+                        "username",
+                        "password",
+                        "email",
+                        "role"
+                    ]
+                }
+            }
+        }
+    }
