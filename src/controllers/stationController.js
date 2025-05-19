@@ -391,38 +391,59 @@ export const getAllStationsByStatus = async (req, res, next) => {
   
   
   
-export const validateTin = async (req, res) => {
-  const etradeHost = 'https://etrade.gov.et';
-  const { tinNumber } = req.params;
-  const externalApiUrl = `${etradeHost}/api/Registration/GetRegistrationInfoByTin/${tinNumber}/am`;
-
-  try {
-    const response = await axios.get(externalApiUrl, {
-      headers: {
-        Referer: etradeHost,
-        Origin: etradeHost,
-      },
-    });
-    return res.status(response.status).json({
-      first_name:response.data.AssociateShortInfos[0].ManagerName.split(" ")[0],
-      last_name:response.data.AssociateShortInfos[0].ManagerName.split(" ")[1]});
-
-  } catch (error) {
-    if (error.response) {
-      return res
-        .status(error.response.status)
-        .json({ message: error.response.data || error.message });
-    } else if (error.request) {
-      return res
-        .status(500)
-        .json({ message: 'No response from ETrade server' });
-    } else {
-      return res
-        .status(500)
-        .json({ message: error.message });
+  export const validateTin = async (req, res) => {
+    const etradeHost = 'https://etrade.gov.et';
+    const { tinNumber } = req.params;
+    const externalApiUrl = `${etradeHost}/api/Registration/GetRegistrationInfoByTin/${tinNumber}/am`;
+  
+    try {
+      const response = await axios.get(externalApiUrl, {
+        headers: {
+          Referer: etradeHost,
+          Origin: etradeHost,
+        },
+      });
+  
+      const associateInfos = response.data.AssociateShortInfos;
+  
+      if (!Array.isArray(associateInfos) || associateInfos.length === 0) {
+        return res.status(404).json({success:false, message: 'No associate information found for this TIN.' });
+      }
+  
+      const managerName = associateInfos[0].ManagerName;
+  
+      if (!managerName || typeof managerName !== 'string') {
+        return res.status(404).json({ message: 'Manager name not available for this TIN.' });
+      }
+  
+      const nameParts = managerName.trim().split(" ");
+      const first_name = nameParts[0] || '';
+      const last_name = nameParts[1] || '';
+  
+      return res.status(response.status).json({
+        first_name,
+        last_name,
+      });
+  
+    } catch (error) {
+      console.error('Error while validating TIN:', error.message);
+  
+      if (error.response) {
+        return res
+          .status(error.response.status)
+          .json({ message: error.response.data?.message || 'Error from ETrade server.' });
+      } else if (error.request) {
+        return res
+          .status(500)
+          .json({ message: 'No response from ETrade server. Please try again later.' });
+      } else {
+        return res
+          .status(500)
+          .json({ message: 'Unexpected error occurred: ' + error.message });
+      }
     }
-  }
-};
+  };
+  
 
 export const getStationsReports = async (req, res, next) => {
   try {
