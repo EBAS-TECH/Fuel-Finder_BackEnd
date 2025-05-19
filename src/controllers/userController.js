@@ -3,6 +3,7 @@ import {
   createUserService,
   deleteUserService,
   getAllUsersService,
+  getUserByEmailService,
   getUserByIdService,
   getUserByUsernameService,
   updateUserService,
@@ -36,6 +37,14 @@ export const createUser = async (req, res, next) => {
   if (user) {
     return res.status(400).json({ error: "Username already exists" });
   }
+  const user1 = await getUserByEmailService(email);
+  if (user1) {
+    return res.status(400).json({ error: "email already exists" });
+  }
+  let verified = false;
+  if (role == "MINISTRY_DELEGATE" || "ADMIN"){
+    verified = true;
+  }
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash(password, salt);
   const defaultProfilePic =
@@ -49,7 +58,8 @@ export const createUser = async (req, res, next) => {
       hashedPassword,
       email,
       role,
-      defaultProfilePic
+      defaultProfilePic,
+      verified
     );
     const { password, ...userWithoutPassword } = newUser;
     handleResponse(res, 201, "User created successfully", userWithoutPassword);

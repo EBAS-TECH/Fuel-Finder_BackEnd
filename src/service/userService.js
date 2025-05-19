@@ -10,11 +10,11 @@ export const getUserByIdService = async (id) => {
   const result = await pool.query("SELECT * FROM users where id = $1", [id]);
   return result.rows[0];
 };
-export const createUserService = async (first_name,last_name,username,password,email,role,profile_pic) => {
+export const createUserService = async (first_name,last_name,username,password,email,role,profile_pic,verified) => {
   const id =uuidv4();
   const result = await pool.query(
-    "INSERT INTO users (id,first_name,last_name,username,password,email,role,profile_pic) VALUES ($1, $2,$3,$4,$5,$6,$7,$8) RETURNING *",
-    [id,first_name,last_name,username,password,email,role,profile_pic]
+    "INSERT INTO users (id,first_name,last_name,username,password,email,role,profile_pic,verified) VALUES ($1, $2,$3,$4,$5,$6,$7,$8,$9) RETURNING *",
+    [id,first_name,last_name,username,password,email,role,profile_pic,verified]
   );
   return result.rows[0];
 };
