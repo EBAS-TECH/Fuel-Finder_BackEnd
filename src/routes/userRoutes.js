@@ -1,8 +1,9 @@
 import express from "express";
 
-import { changePassword, createUser, deleteUserById, getAllUsers, getUserById, updateUserById } from '../controllers/userController.js';
+import { changePassword, changeProfilePic, createUser, deleteUserById, getAllUsers, getUserById, updateUserById } from '../controllers/userController.js';
 import { validateCreateUser, validateUpdateUser } from "../middlewares/userInputValidator.js";
 import protectRoute from "../middlewares/protectRoute.js";
+import { upload } from "../middlewares/upload.js";
 
 
 
@@ -24,6 +25,8 @@ router.put('/:id',validateUpdateUser,protectRoute,updateUserById);
 router.delete('/:id',protectRoute,deleteUserById);
 
 router.put("/profile/change-password", protectRoute, changePassword); 
+
+router.post("/profile/change-profile-pic",protectRoute,upload.single('profile_pic'),changeProfilePic)
 
 export default router;
 

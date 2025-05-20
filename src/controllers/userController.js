@@ -1,5 +1,6 @@
 import {
   changePasswordService,
+  changeProfilePicService,
   createUserService,
   deleteUserService,
   getAllUsersService,
@@ -12,6 +13,9 @@ import { validate as isUUID } from "uuid";
 import bcrypt from "bcryptjs";
 import { deleteFeedbacksByUserIdService } from "../service/feedbackService.js";
 import { deleteFavoritesByUserIdService } from "../service/favoriteService.js";
+import multer from 'multer';
+import streamifier from 'streamifier';
+import { v2 as cloudinary } from 'cloudinary';
 
 // Standardized response function
 const handleResponse = (res, status, message, data = null) => {
@@ -21,6 +25,10 @@ const handleResponse = (res, status, message, data = null) => {
     data,
   });
 };
+
+// Multer setup
+const storage = multer.memoryStorage();
+export const upload = multer({ storage });
 
 export const createUser = async (req, res, next) => {
   const {
@@ -166,3 +174,43 @@ export const changePassword = async (req, res) => {
   }
 };
 
+
+
+export const changeProfilePic = async (req, res) => {
+  // Cloudinary configuration
+cloudinary.config({ 
+  cloud_name: process.env.CLOUDNARY_NAME, 
+  api_key: process.env.CLOUDNARY_API_KEY, 
+  api_secret: process.env.CLOUDNARY_API_SECRET
+});
+
+try {
+  const userId = req.user.id;
+
+  if (!req.file) return res.status(400).json({ error: "Profile picture is required" });
+
+
+  const user = await getUserByIdService(userId);
+  if (!user) return handleResponse(res, 404, "User not found");
+
+  // Upload to Cloudinary
+ const uploadStream = () => new Promise((resolve, reject) => {
+      const stream = cloudinary.uploader.upload_stream(
+        { folder: 'profile_pics', public_id: `user_${userId}_${Date.now()}` },
+        (err, result) => err ? reject(err) : resolve(result)
+      );
+      streamifier.createReadStream(req.file.buffer).pipe(stream);
+    });
+  // Update user profile with hosted image URL
+  const result = await uploadStream();
+  const updatedUser = await changeProfilePicService(userId, result.secure_url);
+
+  res.status(200).json({
+    message: "Profile picture updated successfully",
+    profile_pic: updatedUser.profile_pic
+  });
+} catch (error) {
+  console.error("Error changing profile picture:", error.message);
+  res.status(400).json({ error: error.message });
+}
+};
