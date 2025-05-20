@@ -139,22 +139,28 @@ export const deleteStationByIdService = async (id) => {
     return result.rows[0]; // returns undefined if station with the given ID doesn't exist
   };
 
-  export const getNearbyStationsService = async (latitude, longitude, radius = 10000, limit ) => {
+  export const getNearbyStationsService = async (latitude, longitude, radius = 10000, limit) => {
     const query = `
       SELECT id, en_name, am_name, address,
-             ST_Distance(location, ST_SetSRID(ST_MakePoint($1, $2), 4326)) AS distance,
-             ST_X(location) AS longitude, ST_Y(location) AS latitude,logo
+             ST_Distance(location::geography, ST_SetSRID(ST_MakePoint($2, $1), 4326)::geography) AS distance,
+             ST_X(location) AS longitude, ST_Y(location) AS latitude, logo
       FROM stations
-      WHERE ST_DWithin(location, ST_SetSRID(ST_MakePoint($1, $2), 4326), $3)
+      WHERE status = 'VERIFIED'
+        AND ST_DWithin(location::geography, ST_SetSRID(ST_MakePoint($2, $1), 4326)::geography, $3)
       ORDER BY distance
       LIMIT $4
     `;
-    const result = await pool.query(query, [longitude, latitude, radius, limit]);
+  
+    const result = await pool.query(query, [latitude, longitude, radius, limit]);
     return result.rows;
   };
+  
+  
+  
+  
   export const getListStationIdService = async () => {
     const result = await pool.query(
-      `SELECT id FROM stations ORDER BY created_at DESC`
+      `SELECT id FROM stations where status = 'VERIFIED' ORDER BY created_at DESC`
     );
     return result.rows.map(row => row.id);
   };
