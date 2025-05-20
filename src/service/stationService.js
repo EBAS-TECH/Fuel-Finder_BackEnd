@@ -158,3 +158,12 @@ export const deleteStationByIdService = async (id) => {
     );
     return result.rows.map(row => row.id);
   };
+  export const changeStationLogoService = async (id, logo) => {
+    // Update station logo in the database
+    const updateResult = await pool.query(
+      "UPDATE stations SET logo = $1 WHERE id = $2 RETURNING *",
+      [logo, id]
+    );
+  
+    return updateResult.rows[0];
+  };

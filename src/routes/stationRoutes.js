@@ -1,5 +1,5 @@
 import express from "express";
-import { createStation,
+import { changeStationLogo, createStation,
      deleteStationById,
      getAllStations, 
      getAllStationsByStatus, 
@@ -13,6 +13,7 @@ import { createStation,
 import protectRoute from "../middlewares/protectRoute.js";
 import authorizeRoles from "../middlewares/authorizeRole.js";
 import { validateCreateStation } from "../middlewares/stationInputValidation.js";
+import { upload } from "../middlewares/upload.js";
 const router = express.Router();
 
 router.post('/',validateCreateStation,createStation);
@@ -26,6 +27,7 @@ router.get('/validate-tin/:tinNumber', validateTin);
 router.get('/user/:user_id',protectRoute,getStationByUserId);
 router.post('/report/ministry',protectRoute,authorizeRoles('ADMIN','MINISTRY_DELEGATE'),getStationsReports)
 router.put('/update/:id',protectRoute,authorizeRoles('ADMIN'),updateStationById)
+router.post("/profile/change-logo/:stationId",protectRoute,upload.single('logo'),changeStationLogo)
 
 
 export default router;

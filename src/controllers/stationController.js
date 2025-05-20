@@ -1,4 +1,4 @@
-import { changeAvailabilityStationByIdService, createStationService, 
+import { changeAvailabilityStationByIdService, changeStationLogoService, createStationService, 
     deleteStationByIdService, 
     getAllStationsByStatusService, 
     getAllStationsService, 
@@ -19,6 +19,9 @@ import { deleteFeedbacksByStationIdService, getAverageRateByStationIdService } f
 import { deleteFavoritesByStationIdService, getFavoriteByStationIdService, getListFavoritesByUserIdService } from "../service/favoriteService.js";
 import { deleteFuelAvailabilityByStaionIdService, getAllAvailabilityHours, getAvailableFuelTypeByStationIdService } from "../service/fuelAvailabilityService.js";
 import { getUserById, updateUserById } from "./userController.js";
+import multer from 'multer';
+import streamifier from 'streamifier';
+import { v2 as cloudinary } from 'cloudinary';
 
 
 // Standardized response function
@@ -29,6 +32,11 @@ const handleResponse = (res, status, message, data = null) => {
       data,
     });
   };
+
+  // Multer setup
+const storage = multer.memoryStorage();
+export const upload = multer({ storage });
+
 
 
   export const createStation = async (req, res, next) => {
@@ -531,4 +539,46 @@ export const getStationsReports = async (req, res, next) => {
   } catch (err) {
     next(err);
   }
+};
+
+export const changeStationLogo = async (req, res) => {
+  // Cloudinary configuration
+cloudinary.config({ 
+  cloud_name: process.env.CLOUDNARY_NAME, 
+  api_key: process.env.CLOUDNARY_API_KEY, 
+  api_secret: process.env.CLOUDNARY_API_SECRET
+});
+
+try {
+  const userId = req.user.id;
+  const station_id = req.params.stationId;
+
+  if (!req.file) return res.status(400).json({ error: "Station logo is required" });
+
+
+  const user = await getUserByIdService(userId);
+  if (!user) return handleResponse(res, 404, "User not found");
+
+  // Upload to Cloudinary
+ const uploadStream = () => new Promise((resolve, reject) => {
+      const stream = cloudinary.uploader.upload_stream(
+        { folder: 'stations_logo', public_id: `user_${userId}_${Date.now()}` },
+        (err, result) => err ? reject(err) : resolve(result)
+      );
+      streamifier.createReadStream(req.file.buffer).pipe(stream);
+    });
+  // Update user profile with hosted image URL
+  const result = await uploadStream();
+  console.log()
+  const updatedStation = await changeStationLogoService(station_id, result.secure_url);
+  console.log(updatedStation)
+
+  res.status(200).json({
+    message: "Station logo updated successfully",
+    logo: updatedStation.logo
+  });
+} catch (error) {
+  console.error("Error changing profile picture:", error.message);
+  res.status(400).json({ error: error.message });
+}
 };
