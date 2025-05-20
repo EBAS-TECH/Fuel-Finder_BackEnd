@@ -17,10 +17,10 @@ const router = express.Router();
 router.post("/",protectRoute,authorizeRoles("MINISTRY_DELEGATE", "ADMIN"),createFuelPrice);
 
 // Get all fuel price
-router.get("/", protectRoute, getAllFuelPrices);
+router.get("/", getAllFuelPrices);
 
 // Get fuel price by type
-router.get("/:fuel_type", protectRoute, getFuelPriceByType);
+router.get("/:fuel_type", getFuelPriceByType);
 
 // Update a fuel price by fuel type
 router.put("/:fuel_type",protectRoute,authorizeRoles("MINISTRY_DELEGATE", "ADMIN"),updateFuelPrice);
