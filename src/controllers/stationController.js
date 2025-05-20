@@ -280,10 +280,10 @@ export const getAllStationsByStatus = async (req, res, next) => {
       if (isNaN(latitude) || isNaN(longitude)) {
         return res.status(400).json({ message: "Invalid latitude or longitude values" });
       }
-  
       const favoritesStationIds = await getListFavoritesByUserIdService(user_id);
   
       const nearStations = await getNearbyStationsService(latitude, longitude, radius, limit);
+      
       if (nearStations.length === 0) {
         return handleResponse(res, 200, "No nearby stations found", nearStations);
       }
@@ -369,7 +369,7 @@ export const getAllStationsByStatus = async (req, res, next) => {
               : null;
       
             const available_fuel = await getAvailableFuelTypeByStationIdService(station.id);
-      console.log(station.logo)
+
             suggestedStations.push({
               rank:count.toString(),
               id:station.id,
@@ -461,11 +461,8 @@ export const getStationsReports = async (req, res, next) => {
     const {start_date,end_date}=req.body;
     
     const geminiSations = [];
-    const stations = await getAllStationsService();
+    const stations = await getAllStationsByStatusService('VERIFIED');
     for (const station of stations) {
-      const now = new Date();
-      const thirtyDaysAgo = new Date();
-      thirtyDaysAgo.setDate(now.getDate() - 30);
      
       const availability = await getAllAvailabilityHours(
         new Date(start_date).toISOString(),
@@ -491,7 +488,6 @@ export const getStationsReports = async (req, res, next) => {
         availability:totalMilliseconds
       });
     }
-  
 
     const suggestion = await geminiCategorizeAndSuggestStations(geminiSations);
     const cleaned = suggestion.replace(/```json|```/g, '').trim();
@@ -505,6 +501,7 @@ export const getStationsReports = async (req, res, next) => {
         }
         const ReportedStations = [];
         for (const station of parsedSuggestion.stations) {
+          if (station.availability>0){
           const match = stations.find(s => s.id === station.stationId);
 
           if (match) {
@@ -535,7 +532,7 @@ export const getStationsReports = async (req, res, next) => {
           ReportedStations.push(station);
         }
         return handleResponse(res, 200, "reported stations retrieved successfully", ReportedStations);
-
+      }
   } catch (err) {
     next(err);
   }
