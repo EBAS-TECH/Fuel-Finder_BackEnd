@@ -17,16 +17,16 @@ import { upload } from "../middlewares/upload.js";
 const router = express.Router();
 
 router.post('/',validateCreateStation,createStation);
+router.get('/validate-tin/:tinNumber', validateTin);
+router.get('/user/:user_id',protectRoute,getStationByUserId);
+router.get('/status/:status',protectRoute,authorizeRoles('ADMIN','MINISTRY_DELEGATE','DRIVER'),getAllStationsByStatus);
 router.get('/',protectRoute,authorizeRoles('ADMIN','MINISTRY_DELEGATE','DRIVER'),getAllStations)
-router.get('/status/:status',protectRoute,authorizeRoles('ADMIN','MINISTRY_DELEGATE','DRIVER'),getAllStationsByStatus)
-router.get('/:id',protectRoute,getStationById)
+router.get('/:id',protectRoute,getStationById);
+router.put('/update/:id',protectRoute,authorizeRoles('ADMIN'),updateStationById)
 router.delete('/:id',protectRoute,authorizeRoles('ADMIN'),deleteStationById)
 router.put('/verify-station/:id',protectRoute,authorizeRoles('ADMIN'),verifyStationById)
 router.post('/near-station',protectRoute,getNearByStations)
-router.get('/validate-tin/:tinNumber', validateTin);
-router.get('/user/:user_id',protectRoute,getStationByUserId);
 router.post('/report/ministry',protectRoute,authorizeRoles('ADMIN','MINISTRY_DELEGATE'),getStationsReports)
-router.put('/update/:id',protectRoute,authorizeRoles('ADMIN'),updateStationById)
 router.post("/profile/change-logo/:stationId",protectRoute,upload.single('logo'),changeStationLogo)
 
 
