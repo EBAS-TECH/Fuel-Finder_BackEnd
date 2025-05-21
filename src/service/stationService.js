@@ -104,8 +104,7 @@ export const deleteStationByIdService = async (id) => {
     user_id,
     latitude,
     longitude,
-    address,
-    logo,
+    address
   ) => {
     const result = await pool.query(
       `UPDATE stations
@@ -115,11 +114,10 @@ export const deleteStationByIdService = async (id) => {
            user_id = $4,
            location = ST_SetSRID(ST_MakePoint($5, $6), 4326),
            address = $7,
-           logo=$8
            updated_at = NOW()
-       WHERE id = $9
+       WHERE id = $8
        RETURNING id, en_name, am_name, tin_number, user_id, ST_X(location) AS longitude, ST_Y(location) AS latitude, address, availability, status, created_at, updated_at`,
-      [en_name, am_name, tin_number, user_id, longitude, latitude, address,logo, id]
+      [en_name, am_name, tin_number, user_id, longitude, latitude, address, id]
     );
   
     return result.rows[0];

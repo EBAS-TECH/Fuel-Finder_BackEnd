@@ -217,16 +217,18 @@ export const getAllStationsByStatus = async (req, res, next) => {
   
 
   export const updateStationById = async (req, res, next) => {
+    
     if (!isUUID(req.params.id)) {
         return res.status(400).json({ error: "Invalid token payload: userId is not a valid UUID" });
       }
     const { id } = req.params;
     const { en_name, am_name, address, tin_number,user_id,latitude,longitude,logo } = req.body;
     const { first_name, last_name, username, password, email } = req.body.user;
-  
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
     try {
       const station = await getStationByIdService(id);
-      if(station.user_id != user_id){
+      if(station?.user_id != user_id){
         return res.status(400).json({ error: "user id is not exist" });
       }
       const user1 = await getUserByEmailService(email);
@@ -237,13 +239,14 @@ export const getAllStationsByStatus = async (req, res, next) => {
     if (user2 && user2.username != username) {
       return res.status(400).json({ error: "Username already exists" });
     }
-    const newUser = await updateUserWithEmailService(user_id,first_name,last_name,username,email)
-    const updatedStation = await updateStationByIdService(id,en_name,am_name,tin_number,user_id,latitude,longitude,address,logo);  
+    const updatedUser = await updateUserWithEmailService(user_id,first_name,last_name,username,email,hashedPassword)
+    const updatedStation = await updateStationByIdService(id,en_name,am_name,tin_number,user_id,latitude,longitude,address);  
     // const user 
       if (!updatedStation) {
         return handleResponse(res, 404, "Station not found", null);
       }
-      updatedStation.user=newUser
+      const {password,...userWithoutPassword}= updatedUser;
+      updatedStation.user=userWithoutPassword;
   
       handleResponse(res, 200, "Station updated successfully", updatedStation);
     } catch (err) {
