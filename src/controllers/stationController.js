@@ -456,90 +456,100 @@ export const getAllStationsByStatus = async (req, res, next) => {
   };
   
 
-export const getStationsReports = async (req, res, next) => {
-  try {
-    const user_id = req.user.id;
-
-    const stationIds = await getListStationIdService();
-    const {start_date,end_date}=req.body;
-    
-    const geminiSations = [];
-    const stations = await getAllStationsByStatusService('VERIFIED');
-    for (const station of stations) {
-     
-      const availability = await getAllAvailabilityHours(
-        new Date(start_date).toISOString(),
-        new Date(end_date).toISOString(),
-        station.id
-      );
-      const totalMilliseconds = availability.reduce((sum, item) => {
-        return sum + parseFloat(item.total_milliseconds);
-      }, 0);
-      
-      const averageRateRaw = await getAverageRateByStationIdService(station.id);
-     const averageRate = averageRateRaw !== null 
-  ? parseFloat(Number(averageRateRaw).toFixed(2)) 
-  : null;
-
-        const favorites = await getFavoriteByStationIdService(station?.id);
-
-        const available_fuel = await getAvailableFuelTypeByStationIdService(station.id);
-      geminiSations.push({
-        id: station?.id,
-        rating : (averageRate == null) ? 0 : averageRate,
-        favorites_user: favorites.length,
-        availability:totalMilliseconds
-      });
-    }
-
-    const suggestion = await geminiCategorizeAndSuggestStations(geminiSations);
-    const cleaned = suggestion.replace(/```json|```/g, '').trim();
-    
-    let parsedSuggestion;
+  export const getStationsReports = async (req, res, next) => {
     try {
-      parsedSuggestion = JSON.parse(cleaned);
+      const user_id = req.user.id;
+      const stationIds = await getListStationIdService();
+      const { start_date, end_date } = req.body;
+  
+      const geminiStations = [];
+      const stations = await getAllStationsByStatusService('VERIFIED');
+  
+      for (const station of stations) {
+        const availability = await getAllAvailabilityHours(
+          new Date(start_date).toISOString(),
+          new Date(end_date).toISOString(),
+          station.id
+        );
+  
+        const totalMilliseconds = availability.reduce((sum, item) => {
+          return sum + parseFloat(item.total_milliseconds);
+        }, 0);
+  
+        const averageRateRaw = await getAverageRateByStationIdService(station.id);
+        const averageRate = averageRateRaw !== null
+          ? parseFloat(Number(averageRateRaw).toFixed(2))
+          : null;
+  
+        const favorites = await getFavoriteByStationIdService(station.id);
+        const available_fuel = await getAvailableFuelTypeByStationIdService(station.id);
+  
+        geminiStations.push({
+          id: station.id,
+          rating: averageRate ?? 0,
+          favorites_user: favorites.length,
+          availability: totalMilliseconds
+        });
+      }
+  
+      const hasAvailable = geminiStations.some(station => station.availability > 0);
+  
+      // If no available stations, return an empty list
+      if (!hasAvailable) {
+        return handleResponse(res, 200, "No stations available in the specified period.", []);
+      }
+  
+      // Process suggestion if there are available stations
+      const suggestion = await geminiCategorizeAndSuggestStations(geminiStations);
+      const cleaned = suggestion.replace(/```json|```/g, '').trim();
+  
+      let parsedSuggestion;
+      try {
+        parsedSuggestion = JSON.parse(cleaned);
       } catch (error) {
         console.error("Failed to parse suggestion:", error);
-        parsedSuggestion = {};
-        }
-        const ReportedStations = [];
-        for (const station of parsedSuggestion.stations) {
-          if (station.availability>0){
+        return handleResponse(res, 200, "Invalid station suggestion format.", []);
+      }
+  
+      const ReportedStations = [];
+  
+      for (const station of parsedSuggestion?.stations || []) {
+        if (station.availability > 0) {
           const match = stations.find(s => s.id === station.stationId);
-
-          if (match) {
-            station.name = match.en_name;
-            station.tinNumber = match.tin_number;
-            station.logo = match.logo;
-          } else {
-            station.name = "Unknown";
-            station.tinNumber = "Unknown";
-          }
-          
+  
+          station.name = match?.en_name || "Unknown";
+          station.tinNumber = match?.tin_number || "Unknown";
+          station.logo = match?.logo || null;
+  
           const availability = await getAllAvailabilityHours(
             new Date(start_date).toISOString(),
             new Date(end_date).toISOString(),
             station.stationId
           );
+  
           const totalHours = availability.reduce((sum, item) => {
             return sum + parseFloat(item.total_milliseconds);
           }, 0) / (1000 * 60 * 60);
+  
           const averageRateRaw = await getAverageRateByStationIdService(station.stationId);
-      const averageRate = averageRateRaw !== null 
-        ? parseFloat(parseFloat(averageRateRaw).toFixed(2)) 
-        : 0;
-          
-          
-        station.rating = averageRate;
-        station.availaleHour = totalHours
+          const averageRate = averageRateRaw !== null
+            ? parseFloat(parseFloat(averageRateRaw).toFixed(2))
+            : 0;
+  
+          station.rating = averageRate;
+          station.availaleHour = totalHours;
+  
           ReportedStations.push(station);
         }
-        return handleResponse(res, 200, "reported stations retrieved successfully", ReportedStations);
       }
-  } catch (err) {
-    next(err);
-  }
-};
+  
+      return handleResponse(res, 200, "Reported stations retrieved successfully.", ReportedStations);
+  
+    } catch (err) {
+      next(err);
+    }
+  };
+  
 
 export const changeStationLogo = async (req, res) => {
   // Cloudinary configuration

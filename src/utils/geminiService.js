@@ -71,7 +71,8 @@ Return the response in this JSON format:
       "stationId": "string",
       "category": "Low | Average | High",
       "reason": "string (detailed explanation of all factors, with availability in hours)",
-      "suggestion": "string (how to improve)"
+      "suggestion": "string (how to improve)",
+      "availability": "number in milisecond"
     },
     ...
   ]
