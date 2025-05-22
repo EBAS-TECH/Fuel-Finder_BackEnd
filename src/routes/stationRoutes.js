@@ -26,7 +26,7 @@ router.put('/update/:id',protectRoute,authorizeRoles('ADMIN'),updateStationById)
 router.delete('/:id',protectRoute,authorizeRoles('ADMIN'),deleteStationById)
 router.put('/verify-station/:id',protectRoute,authorizeRoles('ADMIN'),verifyStationById)
 router.post('/near-station',protectRoute,getNearByStations)
-router.post('/report/ministry',protectRoute,authorizeRoles('ADMIN','MINISTRY_DELEGATE'),getStationsReports)
+router.post('/report/ministry',protectRoute,getStationsReports)
 router.post("/profile/change-logo/:stationId",protectRoute,upload.single('logo'),changeStationLogo)
 
 
