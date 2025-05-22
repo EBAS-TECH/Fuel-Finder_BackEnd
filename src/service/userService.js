@@ -18,10 +18,10 @@ export const createUserService = async (first_name,last_name,username,password,e
   );
   return result.rows[0];
 };
-export const updateUserService = async (id,first_name,last_name,username,profile_pic) => {
+export const updateUserService = async (id,first_name,last_name,username) => {
   const result = await pool.query(
-    "UPDATE users SET first_name=$1, last_name=$2,username=$3,profile_pic =$4 WHERE id=$5 RETURNING *",
-    [first_name,last_name,username,profile_pic, id]
+    "UPDATE users SET first_name=$1, last_name=$2,username=$3 WHERE id=$4 RETURNING *",
+    [first_name,last_name,username, id]
   );
   return result.rows[0];
 };

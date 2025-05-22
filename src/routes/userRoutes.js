@@ -1,6 +1,6 @@
 import express from "express";
 
-import { changePassword, changeProfilePic, createUser, deleteUserById, getAllUsers, getUserById, updateUserById } from '../controllers/userController.js';
+import { changePassword, changeProfilePic, createUser, deleteUserById, getAllUsers, getUserById, updateUserById, updateUserWithEmailById } from '../controllers/userController.js';
 import { validateCreateUser, validateUpdateUser } from "../middlewares/userInputValidator.js";
 import protectRoute from "../middlewares/protectRoute.js";
 import { upload } from "../middlewares/upload.js";
@@ -20,6 +20,9 @@ router.post('/',validateCreateUser,protectRoute,createUser);
 
 // Update a user by ID
 router.put('/:id',validateUpdateUser,protectRoute,updateUserById);
+
+// Update a user by ID with email
+router.put('/',validateUpdateUser,protectRoute,updateUserWithEmailById);
 
 // Delete a user by ID
 router.delete('/:id',protectRoute,deleteUserById);

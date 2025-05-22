@@ -19,12 +19,13 @@ const userCreateScheme = Joi.object({
   profile_pic:Joi.string()
 });
 
-const userUpdateScheme = Joi.object({
+const userUpdateSchema = Joi.object({
   first_name: Joi.string().min(3).required(),
-  last_name:Joi.string(),
-  username:Joi.string().required(),
-  profile_pic:Joi.string()
+  last_name: Joi.string(),
+  username: Joi.string().required(),
+  email: Joi.string().email()
 });
+
 
 export const validateSignUpUser = (req, res, next) => {
   const { error } = userSignUpScheme.validate(req.body);
@@ -47,7 +48,7 @@ export const validateCreateUser = (req, res, next) => {
 };
 
 export const validateUpdateUser = (req, res, next) => {
-  const { error } = userUpdateScheme.validate(req.body);
+  const { error } = userUpdateSchema.validate(req.body);
   if (error)
     return res.status(400).json({
       status: 400,

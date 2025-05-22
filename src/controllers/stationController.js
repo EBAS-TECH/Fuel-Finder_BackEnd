@@ -133,10 +133,10 @@ export const getAllStationsByStatus = async (req, res, next) => {
 
   export const getStationById = async (req, res, next) => {
     if (!isUUID(req.params.id)) {
-        return res.status(400).json({ error: "Invalid token payload: userId is not a valid UUID" });
+        return res.status(400).json({ error: "Invalid token payload: station is not a valid UUID" });
       }
     const { id } = req.params;
-  
+  console.log(id)
     try {
       const station = await getStationByIdService(id);
   
