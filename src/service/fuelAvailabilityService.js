@@ -34,18 +34,20 @@ export const getFuelAvailabilityByStationIdService = async (station_id) => {
   const result = await pool.query(
     `
     SELECT 
-  id, station_id, fuel_type, up_time, down_time, available,
-  CASE 
-    WHEN down_time IS NULL THEN EXTRACT(EPOCH FROM (NOW() - up_time))
-    ELSE EXTRACT(EPOCH FROM availability_duration)
-  END AS availability_duration
- FROM fuel_availability
- WHERE station_id = $1
+      id, station_id, fuel_type, up_time, down_time, available,
+      CASE 
+        WHEN down_time IS NULL THEN EXTRACT(EPOCH FROM (NOW() - up_time))
+        ELSE EXTRACT(EPOCH FROM availability_duration)
+      END AS availability_duration
+    FROM fuel_availability
+    WHERE station_id = $1
+    ORDER BY up_time DESC
     `,
     [station_id]
   );
   return result.rows;
 };
+
 
 
 // Get fuel availability by ID
