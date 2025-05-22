@@ -188,6 +188,10 @@ export const changePassword = async (req, res) => {
     if (!isMatch) {
       throw new Error("Old password is incorrect");
     }
+    const isMatch2 = await bcrypt.compare(newPassword, user.password);
+    if (!isMatch) {
+      throw new Error("new password is same with previuos password");
+    }
 
     // Hash the new password
     const salt = await bcrypt.genSalt(10);

@@ -25,10 +25,10 @@ export const updateUserService = async (id,first_name,last_name,username) => {
   );
   return result.rows[0];
 };
-export const updateUserWithEmailService = async (id,first_name,last_name,username,email,password) => {
+export const updateUserWithEmailService = async (id,first_name,last_name,username,email) => {
   const result = await pool.query(
-    "UPDATE users SET first_name=$1, last_name=$2,username=$3,email =$4,password=$5 WHERE id=$6 RETURNING *",
-    [first_name,last_name,username,email,password, id]
+    "UPDATE users SET first_name=$1, last_name=$2,username=$3,email =$4 WHERE id=$5 RETURNING *",
+    [first_name,last_name,username,email, id]
   );
   return result.rows[0];
 };
