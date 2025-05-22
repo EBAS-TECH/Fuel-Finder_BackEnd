@@ -4,12 +4,13 @@ import dotenv from "dotenv";
 import pool from "./config/db.js";
 import cookieParser from "cookie-parser";
 import userRoutes from "./routes/userRoutes.js";
-import authRoutes from "./routes/authRoutes.js"
-import stationRoutes from "./routes/stationRoutes.js"
-import fuelAvailabilityRoutes from "./routes/fuelAvailabilityRoute.js"
-import feedbackRoutes from "./routes/feedbackRoute.js"
-import favoriteRoutes from "./routes/favoriteRoute.js"
-import fuelPriceRoutes from "./routes/fuelPriceRoutes.js"
+import authRoutes from "./routes/authRoutes.js";
+import stationRoutes from "./routes/stationRoutes.js";
+import fuelAvailabilityRoutes from "./routes/fuelAvailabilityRoute.js";
+import feedbackRoutes from "./routes/feedbackRoute.js";
+import favoriteRoutes from "./routes/favoriteRoute.js";
+import fuelPriceRoutes from "./routes/fuelPriceRoutes.js";
+import commentRoutes from "./routes/generalCommentRoute.js"
 import errorHandling from "./middlewares/errorHandler.js";
 import setupDatabase  from "./data/setupDatabase.js";
 import { swaggerDocument, swaggerUi, swaggerUiSetup } from "./utils/docs/swagger.js";
@@ -40,6 +41,7 @@ app.use("/api/availability",fuelAvailabilityRoutes)
 app.use("/api/feedback",feedbackRoutes)
 app.use("/api/favorite",favoriteRoutes)
 app.use("/api/price",fuelPriceRoutes)
+app.use("/api/comment",commentRoutes)
 app.use('/api-docs', basicAuth({
     users: { 'admin': 'password123' },
     challenge: true

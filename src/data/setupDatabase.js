@@ -14,6 +14,7 @@ import createSeedFavorites from "./seed/favoriteSeedData.js";
 import createSeedFeedbacks from "./seed/feedbackSeedData.js";
 import createSeedFuelAvailable from "./seed/fuelAvailabiltySeedData.js";
 import createSeedPrice from "./seed/priceSeedData.js";
+import createGeneralCommentTable from "./generalCommentTable.js";
 // import seedFavorites from "./seed/favoriteSeedDate.js";
 
 
@@ -28,12 +29,14 @@ const setupDatabase = async () => {
     await createfeedbackTable();
     await createfavoriteTable();
     await createFuelPriceTable();
+    await createGeneralCommentTable();
     await createSeedUsers();
     await createSeedUsersAndStations();
     await createSeedFavorites();
     await createSeedFeedbacks();
     await createSeedFuelAvailable();
     await createSeedPrice();
+    
 
     console.log(" Database setup complete!");
   } catch (err) {

@@ -104,8 +104,7 @@ export const deleteStationByIdService = async (id) => {
     user_id,
     latitude,
     longitude,
-    address,
-    logo,
+    address
   ) => {
     const result = await pool.query(
       `UPDATE stations
@@ -115,11 +114,10 @@ export const deleteStationByIdService = async (id) => {
            user_id = $4,
            location = ST_SetSRID(ST_MakePoint($5, $6), 4326),
            address = $7,
-           logo=$8
            updated_at = NOW()
-       WHERE id = $9
+       WHERE id = $8
        RETURNING id, en_name, am_name, tin_number, user_id, ST_X(location) AS longitude, ST_Y(location) AS latitude, address, availability, status, created_at, updated_at`,
-      [en_name, am_name, tin_number, user_id, longitude, latitude, address,logo, id]
+      [en_name, am_name, tin_number, user_id, longitude, latitude, address, id]
     );
   
     return result.rows[0];
@@ -139,22 +137,28 @@ export const deleteStationByIdService = async (id) => {
     return result.rows[0]; // returns undefined if station with the given ID doesn't exist
   };
 
-  export const getNearbyStationsService = async (latitude, longitude, radius = 10000, limit ) => {
+  export const getNearbyStationsService = async (latitude, longitude, radius = 10000, limit) => {
     const query = `
       SELECT id, en_name, am_name, address,
-             ST_Distance(location, ST_SetSRID(ST_MakePoint($1, $2), 4326)) AS distance,
-             ST_X(location) AS longitude, ST_Y(location) AS latitude,logo
+             ST_Distance(location::geography, ST_SetSRID(ST_MakePoint($2, $1), 4326)::geography) AS distance,
+             ST_X(location) AS longitude, ST_Y(location) AS latitude, logo
       FROM stations
-      WHERE ST_DWithin(location, ST_SetSRID(ST_MakePoint($1, $2), 4326), $3)
+      WHERE status = 'VERIFIED'
+        AND ST_DWithin(location::geography, ST_SetSRID(ST_MakePoint($2, $1), 4326)::geography, $3)
       ORDER BY distance
       LIMIT $4
     `;
-    const result = await pool.query(query, [longitude, latitude, radius, limit]);
+  
+    const result = await pool.query(query, [latitude, longitude, radius, limit]);
     return result.rows;
   };
+  
+  
+  
+  
   export const getListStationIdService = async () => {
     const result = await pool.query(
-      `SELECT id FROM stations ORDER BY created_at DESC`
+      `SELECT id FROM stations where status = 'VERIFIED' ORDER BY created_at DESC`
     );
     return result.rows.map(row => row.id);
   };
