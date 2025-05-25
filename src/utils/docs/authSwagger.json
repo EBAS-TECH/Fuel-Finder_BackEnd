@@ -1,0 +1,533 @@
+{
+    "paths": {
+      "/api/auth/signup": {
+        "post": {
+          "summary": "User signup",
+          "description": "Registers a new user in the system. Upon successful registration, a verification email will be sent to the provided email address.",
+          "tags": ["Auth"],
+          "requestBody": {
+            "required": true,
+            "description": "User registration details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthSignUpRequest"
+                },
+                "example": {
+                  "first_name": "John",
+                  "last_name": "Doe",
+                  "username": "johndoe",
+                  "email": "john@example.com",
+                  "password": "MyStrongPass123!",
+                  "role": "OWNER"
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "User registered successfully",
+              "content": {
+                "application/json": {
+                  "example": {
+                    "message": "Registration successful. Please check your email for verification."
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Invalid input data",
+              "content": {
+                "application/json": {
+                  "example": {
+                    "error": "ValidationError",
+                    "message": "Password must be at least 6 characters"
+                  }
+                }
+              }
+            },
+            "409": {
+              "description": "Conflict - User already exists",
+              "content": {
+                "application/json": {
+                  "example": {
+                    "error": "UserExistsError",
+                    "message": "Email already registered"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/auth/login": {
+        "post": {
+          "summary": "User login",
+          "description": "Authenticates a user and returns an access token for authorized API requests.",
+          "tags": ["Auth"],
+          "requestBody": {
+            "required": true,
+            "description": "User credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthLoginRequest"
+                },
+                "example": {
+                  "username": "johndoe",
+                  "password": "MyStrongPass123!"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Login successful",
+              "content": {
+                "application/json": {
+                  "example": {
+                    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+                    "user": {
+                      "id": "507f1f77bcf86cd799439011",
+                      "username": "johndoe",
+                      "email": "john@example.com",
+                      "role": "OWNER"
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Unauthorized - Invalid credentials",
+              "content": {
+                "application/json": {
+                  "example": {
+                    "error": "AuthenticationError",
+                    "message": "Invalid username or password"
+                  }
+                }
+              }
+            },
+            "403": {
+              "description": "Forbidden - Email not verified",
+              "content": {
+                "application/json": {
+                  "example": {
+                    "error": "VerificationError",
+                    "message": "Please verify your email first"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/auth/logout": {
+        "post": {
+          "summary": "User logout",
+          "description": "Invalidates the current user's authentication token. Requires valid authentication.",
+          "tags": ["Auth"],
+          "security": [{"bearerAuth": []}],
+          "responses": {
+            "200": {
+              "description": "Logout successful",
+              "content": {
+                "application/json": {
+                  "example": {
+                    "message": "Successfully logged out"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Unauthorized - Invalid or missing token"
+            }
+          }
+        }
+      },
+      "/api/auth/verify/{id}": {
+        "put": {
+          "summary": "Verify email",
+          "description": "Verifies a user's email address using the verification token sent to their email.",
+          "tags": ["Auth"],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "description": "Verification token sent to user's email",
+              "schema": {
+                "type": "string",
+                "example": "507f1f77bcf86cd799439011"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Email verified successfully",
+              "content": {
+                "application/json": {
+                  "example": {
+                    "message": "Email verified successfully"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Invalid or expired verification token",
+              "content": {
+                "application/json": {
+                  "example": {
+                    "error": "VerificationError",
+                    "message": "Invalid or expired verification token"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/auth/resend/{id}": {
+        "get": {
+          "summary": "Resend verification email",
+          "description": "Resends the verification email to a user who hasn't verified their email address.",
+          "tags": ["Auth"],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "description": "User ID to resend verification",
+              "schema": {
+                "type": "string",
+                "example": "507f1f77bcf86cd799439011"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Verification email resent",
+              "content": {
+                "application/json": {
+                  "example": {
+                    "message": "Verification email resent successfully"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "User not found",
+              "content": {
+                "application/json": {
+                  "example": {
+                    "error": "NotFoundError",
+                    "message": "User not found"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "User already verified",
+              "content": {
+                "application/json": {
+                  "example": {
+                    "error": "VerificationError",
+                    "message": "Email already verified"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/auth/forgot": {
+        "put": {
+          "summary": "Request password reset",
+          "description": "Initiates a password reset process by sending a reset code to the user's email.",
+          "tags": ["Auth"],
+          "requestBody": {
+            "required": true,
+            "description": "Email address for password reset",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ForgotPasswordRequest"
+                },
+                "example": {
+                  "email": "john@example.com"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Password reset email sent",
+              "content": {
+                "application/json": {
+                  "example": {
+                    "message": "Password reset code sent to your email"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Email not found",
+              "content": {
+                "application/json": {
+                  "example": {
+                    "error": "NotFoundError",
+                    "message": "No user found with this email"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/auth/forgot/verify/{id}": {
+        "put": {
+          "summary": "Verify password reset code",
+          "description": "Validates the password reset code sent to the user's email.",
+          "tags": ["Auth"],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "description": "Reset token sent to user's email",
+              "schema": {
+                "type": "string",
+                "example": "507f1f77bcf86cd799439011"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Reset code verified",
+              "content": {
+                "application/json": {
+                  "example": {
+                    "message": "Reset code verified",
+                    "token": "reset_token_abc123"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Invalid or expired reset code",
+              "content": {
+                "application/json": {
+                  "example": {
+                    "error": "ResetError",
+                    "message": "Invalid or expired reset code"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/auth/new-password/{id}": {
+        "put": {
+          "summary": "Set new password",
+          "description": "Sets a new password after verifying the reset token. The token is obtained from the password reset verification endpoint.",
+          "tags": ["Auth"],
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "description": "User ID for password reset",
+              "schema": {
+                "type": "string",
+                "example": "507f1f77bcf86cd799439011"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "description": "New password details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NewPasswordRequest"
+                },
+                "example": {
+                  "password": "NewSecurePassword456!"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Password updated successfully",
+              "content": {
+                "application/json": {
+                  "example": {
+                    "message": "Password updated successfully"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Invalid password or token",
+              "content": {
+                "application/json": {
+                  "example": {
+                    "error": "ValidationError",
+                    "message": "Password must be at least 6 characters"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Unauthorized - Invalid reset token",
+              "content": {
+                "application/json": {
+                  "example": {
+                    "error": "ResetError",
+                    "message": "Invalid or expired reset token"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "components": {
+      "schemas": {
+        "AuthSignUpRequest": {
+          "type": "object",
+          "description": "Required fields for user registration",
+          "properties": {
+            "first_name": {
+              "type": "string",
+              "description": "User's first name",
+              "minLength": 2,
+              "example": "John"
+            },
+            "last_name": {
+              "type": "string",
+              "description": "User's last name",
+              "minLength": 2,
+              "example": "Doe"
+            },
+            "username": {
+              "type": "string",
+              "description": "Unique username for login",
+              "minLength": 4,
+              "example": "johndoe"
+            },
+            "email": {
+              "type": "string",
+              "format": "email",
+              "description": "Valid email address",
+              "example": "john@example.com"
+            },
+            "password": {
+              "type": "string",
+              "format": "password",
+              "description": "Password (min 6 characters)",
+              "minLength": 6,
+              "example": "MyStrongPass123!"
+            },
+            "role": {
+              "type": "string",
+              "description": "User role in the system",
+              "enum": ["ADMIN", "MINISTRY", "OWNER", "WORKER"],
+              "example": "OWNER"
+            }
+          },
+          "required": [
+            "first_name",
+            "last_name",
+            "username",
+            "email",
+            "password",
+            "role"
+          ]
+        },
+        "AuthLoginRequest": {
+          "type": "object",
+          "description": "Credentials for user authentication",
+          "properties": {
+            "username": {
+              "type": "string",
+              "description": "Registered username",
+              "example": "adminuser"
+            },
+            "password": {
+              "type": "string",
+              "format": "password",
+              "description": "Account password",
+              "example": "MySecurePassword123"
+            }
+          },
+          "required": ["username", "password"]
+        },
+        "ForgotPasswordRequest": {
+          "type": "object",
+          "description": "Email address for password reset request",
+          "properties": {
+            "email": {
+              "type": "string",
+              "format": "email",
+              "description": "Registered email address",
+              "example": "john@example.com"
+            }
+          },
+          "required": ["email"]
+        },
+        "NewPasswordRequest": {
+          "type": "object",
+          "description": "New password for reset",
+          "properties": {
+            "password": {
+              "type": "string",
+              "format": "password",
+              "description": "New password (min 6 characters)",
+              "minLength": 6,
+              "example": "NewSecurePassword456!"
+            }
+          },
+          "required": ["password"]
+        }
+      },
+      "responses": {
+        "UnauthorizedError": {
+          "description": "Authentication failed",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ErrorResponse"
+              },
+              "example": {
+                "error": "AuthenticationError",
+                "message": "Invalid credentials"
+              }
+            }
+          }
+        },
+        "ValidationError": {
+          "description": "Invalid input data",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ErrorResponse"
+              },
+              "example": {
+                "error": "ValidationError",
+                "message": "Password must be at least 6 characters"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
