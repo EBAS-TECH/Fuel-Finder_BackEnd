@@ -1,0 +1,357 @@
+{
+    "paths": {
+      "/api/station": {
+        "get": {
+          "summary": "Get all stations",
+          "tags": ["Stations"],
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "List of all stations"
+            }
+          }
+        },
+        "post": {
+          "summary": "Create a new station",
+          "tags": ["Stations"],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StationRequest"
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "Station created successfully"
+            }
+          }
+        }
+      },
+      "/api/station/status/{status}": {
+        "get": {
+          "summary": "Get stations by status",
+          "tags": ["Stations"],
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "parameters": [
+            {
+              "name": "status",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Stations with the given status"
+            }
+          }
+        }
+      },
+      "/api/station/{id}": {
+        "get": {
+          "summary": "Get a station by ID",
+          "tags": ["Stations"],
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Station details"
+            }
+          }
+        },
+        "delete": {
+          "summary": "Delete a station by ID",
+          "tags": ["Stations"],
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Station deleted successfully"
+            }
+          }
+        }
+      },
+      "/api/station/verify-station/{id}": {
+        "put": {
+          "summary": "Verify a station by ID",
+          "tags": ["Stations"],
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Station verified"
+            }
+          }
+        }
+      },
+      "/api/station/near-station": {
+        "post": {
+          "summary": "Get nearby stations",
+          "tags": ["Stations"],
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "latitude": {
+                      "type": "number"
+                    },
+                    "longitude": {
+                      "type": "number"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "List of nearby stations"
+            }
+          }
+        }
+      },
+      "/api/station/validate-tin/{tinNumber}": {
+        "get": {
+          "summary": "Validate station TIN number",
+          "tags": ["Stations"],
+          "parameters": [
+            {
+              "name": "tinNumber",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "TIN number is valid"
+            }
+          }
+        }
+      },
+      "/api/station/user/{user_id}": {
+        "get": {
+          "summary": "Get station by user ID",
+          "tags": ["Stations"],
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "parameters": [
+            {
+              "name": "user_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Station owned by the user"
+            }
+          }
+        }
+      },
+      "/api/station/report/ministry": {
+        "post": {
+          "summary": "Get ministry report of stations",
+          "tags": ["Stations"],
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Ministry report data"
+            }
+          }
+        }
+      },
+      "/api/station/update/{id}": {
+        "put": {
+          "summary": "Update a station by ID",
+          "tags": ["Stations"],
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StationRequest"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Station updated successfully"
+            }
+          }
+        }
+      }
+    },
+    "components": {
+      "schemas": {
+        "StationRequest": {
+          "type": "object",
+          "required": [
+            "user",
+            "en_name",
+            "am_name",
+            "tin_number",
+            "latitude",
+            "longitude",
+            "address"
+          ],
+          "properties": {
+            "user": {
+              "type": "object",
+              "required": [
+                "first_name",
+                "last_name",
+                "username",
+                "password",
+                "email",
+                "role"
+              ],
+              "properties": {
+                "first_name": {
+                  "type": "string",
+                  "example": "andualem"
+                },
+                "last_name": {
+                  "type": "string",
+                  "example": "tilahun"
+                },
+                "username": {
+                  "type": "string",
+                  "example": "estar"
+                },
+                "password": {
+                  "type": "string",
+                  "example": "123456"
+                },
+                "email": {
+                  "type": "string",
+                  "format": "email",
+                  "example": "estart255@gmail.com"
+                },
+                "role": {
+                  "type": "string",
+                  "enum": ["GAS_STATION", "ADMIN", "MINISTRY_DELEGATE"],
+                  "example": "GAS_STATION"
+                }
+              }
+            },
+            "en_name": {
+              "type": "string",
+              "example": "total Station"
+            },
+            "am_name": {
+              "type": "string",
+              "example": "ቶታል ስታሽን"
+            },
+            "tin_number": {
+              "type": "string",
+              "example": "2234567890"
+            },
+            "latitude": {
+              "type": "number",
+              "format": "float",
+              "example": 9
+            },
+            "longitude": {
+              "type": "number",
+              "format": "float",
+              "example": 37
+            },
+            "address": {
+              "type": "string",
+              "example": "123 Main Street, Addis Ababa, Ethiopia"
+            }
+          }
+        }
+      }
+    }
+  }

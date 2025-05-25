@@ -50,6 +50,10 @@ export const createStation = async (req, res, next) => {
   if (user) {
     return res.status(400).json({ error: "Username already exists" });
   }
+  const user1 = await getUserByEmailService(email);
+  if (user1) {
+    return res.status(400).json({ error: "email already exists" });
+  }
 
   // Hash the password and create the default profile picture
   const salt = await bcrypt.genSalt(10);

@@ -1,0 +1,348 @@
+{
+    "paths": {
+      "/api/favorite": {
+        "post": {
+          "summary": "Add a station to favorites",
+          "description": "Allows a DRIVER to add a gas station to their favorites list. Requires authentication.",
+          "tags": ["Favorites"],
+          "security": [{"bearerAuth": []}],
+          "requestBody": {
+            "required": true,
+            "description": "Station to add to favorites",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "station_id": {
+                      "type": "string",
+                      "description": "ID of the station to favorite",
+                      "example": "507f1f77bcf86cd799439011"
+                    }
+                  },
+                  "required": ["station_id"]
+                },
+                "example": {
+                  "station_id": "507f1f77bcf86cd799439011"
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "Station added to favorites successfully",
+              "content": {
+                "application/json": {
+                  "example": {
+                    "message": "Station added to favorites",
+                    "favorite": {
+                      "id": "5f8d04b3ab35a73e64c7f1a2",
+                      "user_id": "5f8d04b3ab35a73e64c7f1a1",
+                      "station_id": "507f1f77bcf86cd799439011",
+                      "createdAt": "2023-05-15T10:00:00Z"
+                    }
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Bad request - Station already in favorites or invalid data",
+              "content": {
+                "application/json": {
+                  "example": {
+                    "error": "ValidationError",
+                    "message": "Station already in favorites"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Unauthorized - Invalid or missing token"
+            },
+            "403": {
+              "description": "Forbidden - User role not authorized",
+              "content": {
+                "application/json": {
+                  "example": {
+                    "error": "AuthorizationError",
+                    "message": "Only DRIVERs can add favorites"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Station not found",
+              "content": {
+                "application/json": {
+                  "example": {
+                    "error": "NotFoundError",
+                    "message": "Station not found"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "get": {
+          "summary": "Get all favorites",
+          "description": "Retrieves all favorite station entries (ADMIN only). Requires authentication.",
+          "tags": ["Favorites"],
+          "security": [{"bearerAuth": []}],
+          "responses": {
+            "200": {
+              "description": "List of all favorites",
+              "content": {
+                "application/json": {
+                  "example": [
+                    {
+                      "id": "5f8d04b3ab35a73e64c7f1a2",
+                      "user_id": "5f8d04b3ab35a73e64c7f1a1",
+                      "station_id": "507f1f77bcf86cd799439011",
+                      "createdAt": "2023-05-15T10:00:00Z",
+                      "user": {
+                        "id": "5f8d04b3ab35a73e64c7f1a1",
+                        "username": "driver1"
+                      },
+                      "station": {
+                        "id": "507f1f77bcf86cd799439011",
+                        "name": "Total Station"
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            "401": {
+              "description": "Unauthorized - Invalid or missing token"
+            },
+            "403": {
+              "description": "Forbidden - User role not authorized"
+            }
+          }
+        }
+      },
+      "/api/favorite/user/": {
+        "get": {
+          "summary": "Get favorites for current user",
+          "description": "Retrieves the favorite stations for the currently authenticated user (DRIVER or ADMIN). Requires authentication.",
+          "tags": ["Favorites"],
+          "security": [{"bearerAuth": []}],
+          "responses": {
+            "200": {
+              "description": "List of user's favorite stations",
+              "content": {
+                "application/json": {
+                  "example": [
+                    {
+                      "id": "5f8d04b3ab35a73e64c7f1a2",
+                      "station_id": "507f1f77bcf86cd799439011",
+                      "createdAt": "2023-05-15T10:00:00Z",
+                      "station": {
+                        "id": "507f1f77bcf86cd799439011",
+                        "name": "Total Station",
+                        "address": "123 Main Street",
+                        "latitude": 9.1234,
+                        "longitude": 38.1234
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            "401": {
+              "description": "Unauthorized - Invalid or missing token"
+            },
+            "403": {
+              "description": "Forbidden - User role not authorized"
+            }
+          }
+        }
+      },
+      "/api/favorite/user/stations": {
+        "get": {
+          "summary": "Get favorite stations details for current user",
+          "description": "Retrieves detailed information about all stations favorited by the current user (DRIVER or ADMIN). Requires authentication.",
+          "tags": ["Favorites"],
+          "security": [{"bearerAuth": []}],
+          "responses": {
+            "200": {
+              "description": "Detailed list of user's favorite stations",
+              "content": {
+                "application/json": {
+                  "example": [
+                    {
+                      "id": "507f1f77bcf86cd799439011",
+                      "name": "Total Station",
+                      "address": "123 Main Street",
+                      "latitude": 9.1234,
+                      "longitude": 38.1234,
+                      "prices": {
+                        "regular": 45.50,
+                        "premium": 50.25
+                      },
+                      "favorited_at": "2023-05-15T10:00:00Z"
+                    }
+                  ]
+                }
+              }
+            },
+            "401": {
+              "description": "Unauthorized - Invalid or missing token"
+            },
+            "403": {
+              "description": "Forbidden - User role not authorized"
+            }
+          }
+        }
+      },
+      "/api/favorite/{station_id}": {
+        "delete": {
+          "summary": "Remove station from favorites",
+          "description": "Allows a DRIVER to remove a gas station from their favorites list. Requires authentication.",
+          "tags": ["Favorites"],
+          "security": [{"bearerAuth": []}],
+          "parameters": [
+            {
+              "name": "station_id",
+              "in": "path",
+              "required": true,
+              "description": "ID of the station to remove from favorites",
+              "schema": {
+                "type": "string",
+                "example": "507f1f77bcf86cd799439011"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Station removed from favorites successfully",
+              "content": {
+                "application/json": {
+                  "example": {
+                    "message": "Station removed from favorites"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Bad request - Station not in favorites",
+              "content": {
+                "application/json": {
+                  "example": {
+                    "error": "ValidationError",
+                    "message": "Station not in favorites"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Unauthorized - Invalid or missing token"
+            },
+            "403": {
+              "description": "Forbidden - User role not authorized",
+              "content": {
+                "application/json": {
+                  "example": {
+                    "error": "AuthorizationError",
+                    "message": "Only DRIVERs can remove favorites"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Favorite entry not found",
+              "content": {
+                "application/json": {
+                  "example": {
+                    "error": "NotFoundError",
+                    "message": "Favorite not found"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "components": {
+      "schemas": {
+        "Favorite": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "description": "Unique identifier for the favorite entry",
+              "example": "5f8d04b3ab35a73e64c7f1a2"
+            },
+            "user_id": {
+              "type": "string",
+              "description": "ID of the user who favorited the station",
+              "example": "5f8d04b3ab35a73e64c7f1a1"
+            },
+            "station_id": {
+              "type": "string",
+              "description": "ID of the favorited station",
+              "example": "507f1f77bcf86cd799439011"
+            },
+            "createdAt": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Timestamp when the station was favorited",
+              "example": "2023-05-15T10:00:00Z"
+            }
+          }
+        },
+        "FavoriteStation": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "description": "Station ID",
+              "example": "507f1f77bcf86cd799439011"
+            },
+            "name": {
+              "type": "string",
+              "description": "Station name",
+              "example": "Total Station"
+            },
+            "address": {
+              "type": "string",
+              "description": "Station address",
+              "example": "123 Main Street"
+            },
+            "latitude": {
+              "type": "number",
+              "description": "Geographical latitude",
+              "example": 9.1234
+            },
+            "longitude": {
+              "type": "number",
+              "description": "Geographical longitude",
+              "example": 38.1234
+            },
+            "prices": {
+              "type": "object",
+              "properties": {
+                "regular": {
+                  "type": "number",
+                  "description": "Price of regular fuel",
+                  "example": 45.50
+                },
+                "premium": {
+                  "type": "number",
+                  "description": "Price of premium fuel",
+                  "example": 50.25
+                }
+              }
+            },
+            "favorited_at": {
+              "type": "string",
+              "format": "date-time",
+              "description": "When the station was favorited",
+              "example": "2023-05-15T10:00:00Z"
+            }
+          }
+        }
+      }
+    }
+  }

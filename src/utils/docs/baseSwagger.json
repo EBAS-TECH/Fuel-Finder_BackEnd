@@ -1,0 +1,43 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+      "title": "Fuel Finder API",
+      "version": "1.0.0",
+      "description": "API Documentation for the Fuel Finder App",
+      "contact": {
+        "email": "support@fuelfinder.com"
+      }
+    },
+    "servers": [
+      {
+        "url": "https://fuel-finder-backend.onrender.com",
+        "description": "Production server"
+      },
+      {
+        "url": "http://localhost:5001",
+        "description": "Local development server"
+      }
+    ],
+    "components": {
+      "securitySchemes": {
+        "bearerAuth": {
+          "type": "http",
+          "scheme": "bearer",
+          "bearerFormat": "JWT"
+        }
+      },
+      "schemas": {
+        "ErrorResponse": {
+          "type": "object",
+          "properties": {
+            "message": {
+              "type": "string"
+            },
+            "error": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }
