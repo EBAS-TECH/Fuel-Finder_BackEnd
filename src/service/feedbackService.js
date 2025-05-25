@@ -94,7 +94,7 @@ export const getRateNumberByStationIdService = async (station_id) => {
   const result = await pool.query(
     `
     SELECT 
-      AVG(rating) AS average_rate,
+      COALESCE(AVG(rating), 0) AS average_rate,
       COUNT(*) FILTER (WHERE rating = 1) AS star_1,
       COUNT(*) FILTER (WHERE rating = 2) AS star_2,
       COUNT(*) FILTER (WHERE rating = 3) AS star_3,
@@ -109,6 +109,7 @@ export const getRateNumberByStationIdService = async (station_id) => {
 
   return result.rows[0];
 };
+
 
 export const deleteFeedbacksByUserIdService = async (userId) => {
   const result = await pool.query(
