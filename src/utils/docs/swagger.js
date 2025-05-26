@@ -24,6 +24,8 @@ const userSwagger = JSON.parse(fs.readFileSync(path.join(__dirname, 'userSwagger
 const stationSwagger = JSON.parse(fs.readFileSync(path.join(__dirname, 'stationSwagger.json'), 'utf8'));
 const favoriteSwagger = JSON.parse(fs.readFileSync(path.join(__dirname, 'favoriteSwagger.json'), 'utf8'));
 const feedbackSwagger = JSON.parse(fs.readFileSync(path.join(__dirname, 'feedbackSwagger.json'), 'utf8'));
+const fuelAvailabilitySwagger = JSON.parse(fs.readFileSync(path.join(__dirname, 'fuelAvailabilitySwagger.json'), 'utf8'));
+const fuelPriceSwagger = JSON.parse(fs.readFileSync(path.join(__dirname, 'fuelPriceSwagger.json'), 'utf8'));
 
 // Merge them together
 const swaggerDocument = {
@@ -33,7 +35,9 @@ const swaggerDocument = {
     ...userSwagger.paths,
     ...stationSwagger.paths,
     ...favoriteSwagger.paths,
-    ...feedbackSwagger.paths
+    ...feedbackSwagger.paths,
+    ...fuelAvailabilitySwagger.paths,
+    ...fuelPriceSwagger.paths
   },
   components: {
     ...baseSwagger.components,
@@ -42,7 +46,9 @@ const swaggerDocument = {
       ...userSwagger.components?.schemas,
       ...stationSwagger.components?.schemas,
       ...favoriteSwagger.components?.schemas,
-      ...feedbackSwagger.components?.schemas
+      ...feedbackSwagger.components?.schemas,
+      ...fuelAvailabilitySwagger.components?.schemas,
+      ...fuelPriceSwagger.components?.schemas
     }
   }
 };
