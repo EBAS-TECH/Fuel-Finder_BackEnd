@@ -390,7 +390,7 @@ export const getNearByStations = async (req, res, next) => {
           suggestion: false,
           latitude: station.latitude,
           longitude: station.longitude,
-          distance: station.distance,
+          distance: Math.round((station.distance/1000)*100)/100,
           logo: station.logo
         });
         count++;
