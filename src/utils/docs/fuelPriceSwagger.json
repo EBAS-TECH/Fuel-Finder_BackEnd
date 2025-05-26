@@ -1,0 +1,123 @@
+{
+  "paths": {
+    "/api/fuel-price": {
+      "post": {
+        "summary": "Create a new fuel price",
+        "tags": ["FuelPrice"],
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FuelPrice"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Fuel price created successfully"
+          }
+        }
+      },
+      "get": {
+        "summary": "Get all fuel prices",
+        "tags": ["FuelPrice"],
+        "responses": {
+          "200": {
+            "description": "List of all fuel prices"
+          }
+        }
+      }
+    },
+    "/api/fuel-price/{fuel_type}": {
+      "get": {
+        "summary": "Get fuel price by type",
+        "tags": ["FuelPrice"],
+        "parameters": [
+          {
+            "name": "fuel_type",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Fuel price details for the given type"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update fuel price by type",
+        "tags": ["FuelPrice"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "fuel_type",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FuelPrice"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Fuel price updated successfully"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete fuel price by type",
+        "tags": ["FuelPrice"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "fuel_type",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Fuel price deleted successfully"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "FuelPrice": {
+        "type": "object",
+        "properties": {
+          "fuel_type": {
+            "type": "string",
+            "example": "Gasoline"
+          },
+          "price": {
+            "type": "number",
+            "example": 32.5
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2024-06-15T12:00:00Z"
+          }
+        }
+      }
+    }
+  }
+}

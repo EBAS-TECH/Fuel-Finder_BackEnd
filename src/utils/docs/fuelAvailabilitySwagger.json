@@ -1,0 +1,168 @@
+{
+  "paths": {
+    "/api/fuel-availability": {
+      "get": {
+        "summary": "Get all fuel availabilities",
+        "tags": ["FuelAvailability"],
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": { "description": "List of all fuel availabilities" }
+        }
+      },
+      "post": {
+        "summary": "Create a new fuel availability",
+        "tags": ["FuelAvailability"],
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FuelAvailabilityRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Fuel availability created successfully" }
+        }
+      }
+    },
+    "/api/fuel-availability/{id}": {
+      "get": {
+        "summary": "Get fuel availability by ID",
+        "tags": ["FuelAvailability"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [{
+          "name": "id",
+          "in": "path",
+          "schema": { "type": "string" }
+        }],
+        "responses": {
+          "200": { "description": "Fuel availability details" }
+        }
+      },
+      "put": {
+        "summary": "Update fuel availability by ID",
+        "tags": ["FuelAvailability"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [{
+          "name": "id",
+          "in": "path",
+          "schema": { "type": "string" }
+        }],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FuelAvailabilityRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Fuel availability updated successfully" }
+        }
+      },
+      "delete": {
+        "summary": "Delete fuel availability by ID",
+        "tags": ["FuelAvailability"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [{
+          "name": "id",
+          "in": "path",
+          "schema": { "type": "string" }
+        }],
+        "responses": {
+          "200": { "description": "Fuel availability deleted successfully" }
+        }
+      }
+    },
+    "/api/fuel-availability/station/{id}": {
+      "get": {
+        "summary": "Get fuel availability by station ID",
+        "tags": ["FuelAvailability"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [{
+          "name": "id",
+          "in": "path",
+          "schema": { "type": "string" }
+        }],
+        "responses": {
+          "200": { "description": "Fuel availability list for station" }
+        }
+      }
+    },
+    "/api/fuel-availability/StationAndFuelType": {
+      "get": {
+        "summary": "Get fuel availability by station and fuel type",
+        "tags": ["FuelAvailability"],
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": { "description": "Fuel availability for specific station and fuel type" }
+        }
+      }
+    },
+    "/api/fuel-availability/isAvailable/{id}": {
+      "put": {
+        "summary": "Update availability for latest record by station and fuel type",
+        "tags": ["FuelAvailability"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [{
+          "name": "id",
+          "in": "path",
+          "schema": { "type": "string" }
+        }],
+        "responses": {
+          "200": { "description": "Availability updated successfully" }
+        }
+      }
+    },
+    "/api/fuel-availability/duration": {
+      "post": {
+        "summary": "Get total availability hours by user",
+        "tags": ["FuelAvailability"],
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "user_id": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Total availability duration returned" }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "FuelAvailabilityRequest": {
+        "type": "object",
+        "properties": {
+          "station_id": {
+            "type": "string",
+            "example": "123abc456"
+          },
+          "fuel_type": {
+            "type": "string",
+            "example": "Gasoline"
+          },
+          "isAvailable": {
+            "type": "boolean",
+            "example": true
+          },
+          "liters": {
+            "type": "number",
+            "example": 500
+          }
+        }
+      }
+    }
+  }
+}

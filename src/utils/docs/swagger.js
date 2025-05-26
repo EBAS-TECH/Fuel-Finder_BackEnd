@@ -23,6 +23,7 @@ const authSwagger = JSON.parse(fs.readFileSync(path.join(__dirname, 'authSwagger
 const userSwagger = JSON.parse(fs.readFileSync(path.join(__dirname, 'userSwagger.json'), 'utf8'));
 const stationSwagger = JSON.parse(fs.readFileSync(path.join(__dirname, 'stationSwagger.json'), 'utf8'));
 const favoriteSwagger = JSON.parse(fs.readFileSync(path.join(__dirname, 'favoriteSwagger.json'), 'utf8'));
+const feedbackSwagger = JSON.parse(fs.readFileSync(path.join(__dirname, 'feedbackSwagger.json'), 'utf8'));
 
 // Merge them together
 const swaggerDocument = {
@@ -32,6 +33,7 @@ const swaggerDocument = {
     ...userSwagger.paths,
     ...stationSwagger.paths,
     ...favoriteSwagger.paths,
+    ...feedbackSwagger.paths
   },
   components: {
     ...baseSwagger.components,
@@ -39,7 +41,8 @@ const swaggerDocument = {
       ...authSwagger.components?.schemas,
       ...userSwagger.components?.schemas,
       ...stationSwagger.components?.schemas,
-      ...favoriteSwagger.components?.schemas
+      ...favoriteSwagger.components?.schemas,
+      ...feedbackSwagger.components?.schemas
     }
   }
 };
